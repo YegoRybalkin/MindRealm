@@ -8,6 +8,7 @@ import { placeConcepts } from "@/lib/domain/placement";
 import { EMPTY_PROFILE, addTestRecord, recordActivity } from "@/lib/domain/profile";
 import * as W from "@/lib/domain/world";
 import { sectionGenerator } from "@/lib/generation";
+import { MAX_SECTIONS, canAddSection } from "@/lib/limits";
 import { createRepository, type MemoryRepository } from "@/lib/persistence";
 import type { Concept, Profile, Section, TestRecord, World } from "@/lib/types";
 
@@ -30,7 +31,7 @@ interface MemoryStore {
   recordAnswer(worldId: string, conceptId: string, correct: boolean): Promise<void>;
   recordTest(record: TestRecord): Promise<void>;
   markStudied(worldId: string): Promise<void>;
-  importConcepts(worldId: string, concepts: W.ConceptInput[]): Promise<{ placed: number; sectionsAdded: number }>;
+  importConcepts(worldId: string, concepts: W.ConceptInput[]): Promise<{ placed: number; sectionsAdded: number; unplaced: number }>;
   restoreDemo(): Promise<World>;
 }
 
@@ -156,6 +157,7 @@ export function MemoryStoreProvider({ children, repository }: { children: ReactN
       },
       async generateSection(worldId) {
         const world = mustGet(worldId);
+        if (!canAddSection(world.sections.length)) throw new Error(`A world can have at most ${MAX_SECTIONS} sections.`);
         const section = await sectionGenerator.generate({ world, environment: getEnvironment(world.environmentType) });
         await commitWorld(W.addSection(world, section));
         return section;
@@ -183,7 +185,7 @@ export function MemoryStoreProvider({ children, repository }: { children: ReactN
         const res = await placeConcepts(mustGet(worldId), concepts);
         await commitWorld(W.markStudied(res.world));
         touchActivity();
-        return { placed: res.placed, sectionsAdded: res.sectionsAdded };
+        return { placed: res.placed, sectionsAdded: res.sectionsAdded, unplaced: res.unplaced };
       },
       async restoreDemo() {
         const demo = createDemoWorld();

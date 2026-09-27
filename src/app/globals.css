@@ -105,6 +105,12 @@
   }
 }
 
+/* Toasts are informational only (no actions): never let them block clicks on the scene. */
+[data-sonner-toaster],
+[data-sonner-toast] {
+  pointer-events: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

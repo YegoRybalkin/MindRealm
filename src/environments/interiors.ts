@@ -20,6 +20,12 @@ function hang(key: string, name: string, visualType: string, x: number, size: nu
   return obj(key, name, visualType, x, y, size);
 }
 
+/** Lay out six items in a 3×2 grid (top-down close-ups: tables, crates, drawers…). */
+type Item = [key: string, name: string, visualType: string, size: number];
+function grid(items: Item[], rows: [number, number] = [46, 86], cols: number[] = [22, 50, 78]): ObjectTemplate[] {
+  return items.map(([key, name, visualType, size], i) => obj(key, name, visualType, cols[i % cols.length], rows[Math.floor(i / cols.length)] ?? rows[1], size));
+}
+
 export const INTERIORS: Record<string, InteriorTemplate> = {
   /* ------------------------------ castle ------------------------------ */
   "castle-library-bookshelf": {
@@ -166,6 +172,229 @@ export const INTERIORS: Record<string, InteriorTemplate> = {
       obj("thermometer", "Thermometer", "thermometer", 50, 76, 22),
       obj("stethoscope", "Stethoscope", "stethoscope", 78, 86, 14.5),
     ],
+  },
+  /* ------------------------ second wave: castle ------------------------ */
+  "castle-greathall-table": {
+    title: "The Feast on the Table",
+    background: { kind: "interior-table", options: { wood: "#5a3a24", cloth: "#efe4cc", trim: "#8e2433" } },
+    objects: grid([
+      ["roast", "Roast Chicken", "roast", 18],
+      ["bread", "Loaf of Bread", "bread", 15],
+      ["grapes", "Bunch of Grapes", "grapes", 9],
+      ["pie", "Berry Pie", "pie", 15],
+      ["jug", "Wine Jug", "jug", 9],
+      ["cheese", "Cheese Wheel", "cheese", 13],
+    ]),
+  },
+  "castle-armory-barrel": {
+    title: "Inside the Barrel",
+    background: { kind: "interior-crate", options: { wood: "#6b4428", fill: "straw", round: true } },
+    objects: grid([
+      ["arrows", "Bundle of Arrows", "arrows", 9],
+      ["mace", "Spiked Mace", "mace", 7],
+      ["gauntlet", "Iron Gauntlet", "gauntlet", 10],
+      ["horn", "War Horn", "horn", 15],
+      ["whetstone", "Whetstone", "whetstone", 14],
+      ["chainmail", "Chainmail Shirt", "chainmail", 12],
+    ], [48, 84], [28, 50, 72]),
+  },
+  "castle-courtyard-cart": {
+    title: "In the Hay Cart",
+    background: { kind: "interior-crate", options: { wood: "#8a5f3c", fill: "straw" } },
+    objects: grid([
+      ["sack", "Grain Sack", "grain-sack", 10],
+      ["pumpkin", "Pumpkin", "pumpkin", 13],
+      ["cabbage", "Cabbage", "cabbage", 11],
+      ["horseshoe", "Lucky Horseshoe", "horseshoe", 10],
+      ["pail", "Milk Pail", "milk-pail", 10],
+      ["turnips", "Turnips", "turnips", 14],
+    ]),
+  },
+  "castle-chapel-altar": {
+    title: "Inside the Reliquary",
+    background: { kind: "interior-case", options: { shell: "#d9d1c4", lining: "#4a2a6a", trim: "#d6a84a", table: "#2a2230" } },
+    objects: grid([
+      ["rosary", "Rosary", "rosary", 11],
+      ["censer", "Censer", "censer", 8],
+      ["book", "Prayer Book", "prayer-book", 14],
+      ["chalice", "Chalice", "goblet", 6],
+      ["relic", "Relic Box", "relic-box", 12],
+      ["feather", "White Feather", "feather", 14],
+    ], [48, 82]),
+  },
+
+  /* ------------------------ second wave: house ------------------------ */
+  "house-entrance-drawer": {
+    title: "Inside the Console Drawer",
+    background: { kind: "interior-drawer", options: { wood: "#8a5a3b", felt: "#2f4863" } },
+    objects: [
+      obj("wallet", "Wallet", "wallet", 28, 30, 12),
+      obj("sunglasses", "Sunglasses", "sunglasses", 72, 28, 15),
+      obj("envelopes", "Letters", "envelopes", 28, 56, 13),
+      obj("phone", "Old Phone", "phone", 72, 60, 6),
+      obj("keys", "House Keys", "key", 28, 84, 14),
+      obj("lipstick", "Lipstick", "lipstick", 72, 90, 4.5),
+    ],
+  },
+  "house-living-coffeetable": {
+    title: "Inside the Coffee Table Drawer",
+    background: { kind: "interior-drawer", options: { wood: "#6b4428", felt: "#7a2e3a" } },
+    objects: [
+      obj("dice", "Pair of Dice", "dice", 28, 30, 11),
+      obj("knight", "Chess Knight", "chess-knight", 72, 34, 6),
+      obj("cards", "Playing Cards", "cards", 28, 60, 12),
+      obj("puzzle", "Puzzle Piece", "puzzle", 72, 58, 10),
+      obj("remote", "TV Remote", "remote", 28, 92, 4.5),
+      obj("candle", "Scented Candle", "candle-jar", 72, 90, 8),
+    ],
+  },
+  "house-bathroom-mirror": {
+    title: "Inside the Mirror Cabinet",
+    background: { kind: "interior-shelf", options: { style: "glass" } },
+    objects: [
+      obj("toothbrush", "Toothbrush", "toothbrush", 24, S1, 4),
+      obj("paste", "Toothpaste", "toothpaste", 52, S1, 14),
+      obj("soap", "Bar of Soap", "soap", 78, S1, 10),
+      obj("perfume", "Perfume", "perfume", 30, S2, 7),
+      obj("comb", "Comb", "comb", 68, S2, 14),
+      obj("lotion", "Lotion", "lotion", 50, S3, 5),
+    ],
+  },
+
+  /* ------------------------ second wave: garden ------------------------ */
+  "garden-entrance-birdhouse": {
+    title: "Inside the Birdhouse",
+    background: { kind: "interior-nest", options: {} },
+    objects: grid([
+      ["eggs", "Blue Eggs", "bird-eggs", 12],
+      ["feather", "Soft Feather", "feather", 14],
+      ["acorn", "Acorn", "acorn", 7],
+      ["snail", "Snail", "snail", 12],
+      ["berries", "Berries", "berries", 11],
+      ["button", "Shiny Button", "button", 7],
+    ], [48, 80], [30, 50, 70]),
+  },
+  "garden-fountain-basin": {
+    title: "Beneath the Fountain",
+    background: { kind: "interior-water", options: { top: "#8fd3ea", deep: "#2a6f95", floor: "#d9cfb4" } },
+    objects: [
+      obj("goldfish", "Goldfish", "goldfish", 26, 34, 13),
+      obj("coin", "Wishing Coin", "wish-coin", 54, 40, 7),
+      obj("bottle", "Message in a Bottle", "message-bottle", 80, 30, 15),
+      obj("turtle", "Turtle", "turtle", 30, 64, 14),
+      obj("lily", "Water Lily", "lily-flower", 72, 60, 12),
+      obj("pebbles", "Pebbles", "pebbles", 52, 93, 14),
+    ],
+  },
+  "garden-rose-beehive": {
+    title: "Inside the Beehive",
+    background: { kind: "interior-hive", options: {} },
+    objects: [
+      obj("bee", "Worker Bee", "bee", 22, 32, 11),
+      obj("queen", "Queen Bee", "queen-bee", 52, 30, 13),
+      obj("jar", "Honey Jar", "honey-jar", 80, 44, 8),
+      obj("dipper", "Honey Dipper", "honey-dipper", 26, 64, 15),
+      obj("comb", "Honeycomb", "honeycomb", 56, 84, 13),
+      obj("candle", "Beeswax Candle", "wax-candle", 82, 88, 5),
+    ],
+  },
+  "garden-pond-rowboat": {
+    title: "In the Rowboat",
+    background: { kind: "interior-crate", options: { wood: "#7a4e30", fill: "boards" } },
+    objects: grid([
+      ["rod", "Fishing Rod", "fishing-rod", 18],
+      ["net", "Fishing Net", "net", 13],
+      ["ring", "Life Ring", "life-ring", 10],
+      ["bait", "Bait Tin", "bait-tin", 10],
+      ["fish", "Silver Fish", "caught-fish", 15],
+      ["lantern", "Boat Lantern", "lantern", 6],
+    ]),
+  },
+  "garden-statue-urn": {
+    title: "Inside the Stone Urn",
+    background: { kind: "interior-crate", options: { wood: "#a79f90", fill: "boards", round: true } },
+    objects: grid([
+      ["laurel", "Laurel Wreath", "laurel", 13],
+      ["hand", "Marble Hand", "marble-hand", 8],
+      ["mosaic", "Mosaic Tile", "mosaic", 10],
+      ["lamp", "Oil Lamp", "oil-lamp", 14],
+      ["amphora", "Amphora", "amphora", 7],
+      ["scroll", "Ancient Scroll", "scroll", 13],
+    ], [48, 84], [30, 50, 70]),
+  },
+  "garden-orchard-basket": {
+    title: "In the Fruit Basket",
+    background: { kind: "interior-crate", options: { fill: "weave", round: true, wood: "#9c6a3a" } },
+    objects: grid([
+      ["pear", "Pear", "pear", 7],
+      ["plum", "Plum", "plum", 7],
+      ["cherries", "Cherries", "cherries", 8],
+      ["peach", "Peach", "peach", 8],
+      ["lemon", "Lemon", "lemon", 10],
+      ["apple", "Green Apple", "green-apple", 8],
+    ], [48, 80], [32, 50, 68]),
+  },
+
+  /* ------------------------ second wave: station ------------------------ */
+  "station-airlock-kit": {
+    title: "Inside the Emergency Kit",
+    background: { kind: "interior-case", options: { shell: "#ff9f43", lining: "#2a3342", trim: "#ffd166", table: "#1b2230" } },
+    objects: grid([
+      ["flare", "Signal Flare", "flare", 16],
+      ["ration", "Ration Pack", "ration", 12],
+      ["flashlight", "Flashlight", "flashlight", 16],
+      ["mask", "Oxygen Mask", "oxygen-mask", 10],
+      ["tape", "Repair Tape", "repair-tape", 9],
+      ["rope", "Tether Line", "rope", 12],
+    ], [48, 84]),
+  },
+  "station-command-archive": {
+    title: "The Console Archive",
+    background: { kind: "interior-holo", options: { color: "#5ce1e6" } },
+    objects: grid([
+      ["galaxy", "Galaxy Map", "holo-galaxy", 12],
+      ["comet", "Comet Track", "holo-comet", 12],
+      ["ship", "Ship Schematic", "holo-ship", 12],
+      ["moon", "Moon Survey", "holo-moon", 12],
+      ["sun", "Star Profile", "holo-sun", 12],
+      ["asteroid", "Asteroid Scan", "holo-asteroid", 12],
+    ], [44, 88]),
+  },
+  "station-lab-tank": {
+    title: "Inside the Specimen Tank",
+    background: { kind: "interior-water", options: { top: "#3fbf7a", deep: "#0f3a2a", floor: "#2a3342" } },
+    objects: [
+      obj("jelly", "Glow Jellyfish", "jellyfish", 24, 46, 9),
+      obj("egg", "Alien Egg", "alien-egg", 52, 50, 7),
+      obj("microbe", "Giant Microbe", "microbe", 80, 34, 11),
+      obj("spores", "Spore Pod", "spore-pod", 26, 92, 8),
+      obj("tentacle", "Tentacle Plant", "tentacle-plant", 56, 94, 9),
+      obj("crystal", "Bio Crystal", "crystal", 80, 94, 8),
+    ],
+  },
+  "station-engine-parts": {
+    title: "Inside the Parts Case",
+    background: { kind: "interior-case", options: { shell: "#9aa4b2", lining: "#3a2e2a", trim: "#ff9f43", table: "#1b1c20" } },
+    objects: grid([
+      ["gear", "Big Gear", "gear", 10],
+      ["bolt", "Hex Bolt", "bolt", 14],
+      ["board", "Circuit Board", "circuit-board", 13],
+      ["battery", "Power Cell", "battery", 6],
+      ["fuse", "Fuse", "fuse", 14],
+      ["spring", "Coil Spring", "spring", 6],
+    ], [48, 84]),
+  },
+  "station-observation-archive": {
+    title: "The Satellite Archive",
+    background: { kind: "interior-holo", options: { color: "#c77dff" } },
+    objects: grid([
+      ["rock", "Moon Rock", "moon-rock", 12],
+      ["rocket", "Rocket Model", "rocket-model", 6],
+      ["astronaut", "Astronaut Figure", "astronaut-toy", 7],
+      ["meteorite", "Meteorite", "meteorite", 12],
+      ["badge", "Mission Patch", "badge", 7],
+      ["chart", "Star Chart", "star-map", 12],
+    ], [44, 88]),
   },
 };
 

@@ -5,6 +5,7 @@ import { ArrowLeft, Brain, Check, Eye, EyeOff, ListPlus, Loader2, Map, MoreHoriz
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TERMS } from "@/lib/terminology";
+import { MAX_SECTIONS } from "@/lib/limits";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
   showLabels: boolean;
   saving: boolean;
   generating: boolean;
+  sectionCount: number;
   onToggleLabels: () => void;
   onModeChange: (m: "learn" | "test") => void;
   onSearch: () => void;
@@ -28,6 +30,7 @@ interface Props {
 const iconBtn = "h-10 w-10 rounded-full text-white/80 hover:bg-white/10 hover:text-white";
 
 export function WorldTopBar(p: Props) {
+  const full = p.sectionCount >= MAX_SECTIONS;
   return (
     <header className="pointer-events-none absolute inset-x-0 top-0 z-30 bg-gradient-to-b from-black/70 via-black/30 to-transparent px-3 pb-10 pt-3 sm:px-5 sm:pt-4">
       <div className="pointer-events-auto flex items-center gap-2 sm:gap-3">
@@ -80,8 +83,18 @@ export function WorldTopBar(p: Props) {
             <Map className="!h-[18px] !w-[18px]" />
           </Button>
           {p.mode === "learn" && (
-            <Button variant="glass" size="sm" className="hidden h-10 px-4 lg:inline-flex" onClick={p.onGenerate} disabled={p.generating}>
+            <Button
+              variant="glass"
+              size="sm"
+              className="hidden h-10 px-4 lg:inline-flex"
+              onClick={p.onGenerate}
+              disabled={p.generating || full}
+              title={full ? `Maximum of ${MAX_SECTIONS} sections reached` : undefined}
+            >
               {p.generating ? <Loader2 className="animate-spin" /> : <Plus />} {TERMS.generateSection}
+              <span className="text-white/50 tabular-nums">
+                {p.sectionCount}/{MAX_SECTIONS}
+              </span>
             </Button>
           )}
           {p.mode === "learn" && (
@@ -97,8 +110,11 @@ export function WorldTopBar(p: Props) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="dark">
               {p.mode === "test" && <DropdownMenuItem onSelect={() => p.onModeChange("learn")}>Back to {TERMS.learnModeLong}</DropdownMenuItem>}
-              <DropdownMenuItem onSelect={p.onGenerate} disabled={p.generating}>
+              <DropdownMenuItem onSelect={p.onGenerate} disabled={p.generating || full}>
                 <Plus /> {TERMS.generateSection}
+                <span className="ml-auto text-xs text-muted-foreground tabular-nums">
+                  {p.sectionCount}/{MAX_SECTIONS}
+                </span>
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={p.onImport}>
                 <ListPlus /> Add concepts in bulk

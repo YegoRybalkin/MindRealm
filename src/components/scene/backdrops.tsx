@@ -750,8 +750,9 @@ const station: BackdropRenderer = (u, o) => {
 /** Shelving close-up: bookshelves, potion cabinets, fridges, lockers. */
 const interiorShelf: BackdropRenderer = (u, o) => {
   const style = str(o, "style", "wood");
-  const wood = str(o, "wood", style === "metal" ? "#8e98a6" : style === "fridge" ? "#f3f5f7" : "#5e3c27");
-  const back = str(o, "back", style === "fridge" ? "#e8eef2" : "#2a1a10");
+  const glassy = style === "fridge" || style === "glass";
+  const wood = str(o, "wood", style === "metal" ? "#8e98a6" : glassy ? "#f3f5f7" : "#5e3c27");
+  const back = str(o, "back", style === "fridge" ? "#e8eef2" : style === "glass" ? "#e4f0ec" : "#2a1a10");
   const glow = str(o, "glow", "");
   const shelves = list(o, "shelves").length ? list(o, "shelves") : [300, 560, 820];
   const wp = str(o, "wp", "");
@@ -769,7 +770,7 @@ const interiorShelf: BackdropRenderer = (u, o) => {
       {shelves.map((y, i) => (
         <g key={i}>
           <rect x="0" y={y + 22} width={SCENE_W} height="70" fill={`url(#${u}-under)`} />
-          {style === "fridge" ? (
+          {glassy ? (
             <g>
               <rect x="80" y={y} width={SCENE_W - 160} height="16" fill="#cfe9f5" opacity={0.55} />
               <rect x="80" y={y} width={SCENE_W - 160} height="4" fill="#fff" opacity={0.9} />
@@ -899,6 +900,194 @@ const interiorBench: BackdropRenderer = (u, o) => {
   );
 };
 
+/** Top-down tabletop with a cloth runner: feasts, games. */
+const interiorTable: BackdropRenderer = (u, o) => {
+  const wood = str(o, "wood", "#6b4428");
+  const cloth = str(o, "cloth", "#e8dcc2");
+  const trim = str(o, "trim", "#8e2433");
+  return (
+    <g>
+      <defs>
+        <pattern id={`${u}-planks`} width="1600" height="110" patternUnits="userSpaceOnUse">
+          <rect width="1600" height="110" fill={wood} />
+          <path d="M0 108H1600" stroke="#000" strokeOpacity={0.25} strokeWidth={4} />
+          <path d="M200 30c200 10 400-10 600 6M900 70c200-8 400 8 600-4" stroke="#000" strokeOpacity={0.1} strokeWidth={3} fill="none" />
+        </pattern>
+      </defs>
+      <rect width={SCENE_W} height={SCENE_H} fill={`url(#${u}-planks)`} />
+      <rect x="120" y="120" width={SCENE_W - 240} height="700" rx="10" fill={cloth} />
+      <rect x="150" y="150" width={SCENE_W - 300} height="640" rx="6" fill="none" stroke={trim} strokeWidth={10} />
+      <rect x="170" y="170" width={SCENE_W - 340} height="600" rx="4" fill="none" stroke={trim} strokeOpacity={0.4} strokeWidth={3} />
+      <LightPool u={u} k="candle" cx={800} cy={420} rx={760} ry={420} color="#ffd9a0" opacity={0.3} />
+      <Vignette u={u} strength={0.55} />
+    </g>
+  );
+};
+
+/** Looking down into a crate, barrel, cart or basket (straw or wicker lining). */
+const interiorCrate: BackdropRenderer = (u, o) => {
+  const wood = str(o, "wood", "#8a5f3c");
+  const fill = str(o, "fill", "straw");
+  const round = o.round === true;
+  return (
+    <g>
+      <defs>
+        <pattern id={`${u}-straw`} width="60" height="30" patternUnits="userSpaceOnUse">
+          <rect width="60" height="30" fill="#d8b456" />
+          <path d="M0 8l30 6M20 24l36-8M4 20l16-14M40 4l18 10" stroke="#b8923a" strokeWidth={3} />
+        </pattern>
+        <pattern id={`${u}-weave`} width="48" height="48" patternUnits="userSpaceOnUse">
+          <rect width="48" height="48" fill="#c9954a" />
+          <path d="M0 12h24M24 36h24" stroke="#a8743a" strokeWidth={10} />
+          <path d="M36 0v24M12 24v24" stroke="#b8844a" strokeWidth={10} />
+        </pattern>
+        <pattern id={`${u}-boards`} width="160" height="900" patternUnits="userSpaceOnUse">
+          <rect width="160" height="900" fill={shade(wood, -0.15)} />
+          <path d="M158 0v900" stroke="#000" strokeOpacity={0.3} strokeWidth={4} />
+        </pattern>
+      </defs>
+      <rect width={SCENE_W} height={SCENE_H} fill={shade(wood, -0.55)} />
+      {round ? (
+        <g>
+          <ellipse cx="800" cy="470" rx="760" ry="430" fill={wood} />
+          <ellipse cx="800" cy="470" rx="700" ry="380" fill="none" stroke="#2d2926" strokeWidth={22} />
+          <ellipse cx="800" cy="480" rx="660" ry="350" fill={fill === "weave" ? `url(#${u}-weave)` : fill === "boards" ? `url(#${u}-boards)` : `url(#${u}-straw)`} />
+        </g>
+      ) : (
+        <g>
+          <rect x="40" y="40" width={SCENE_W - 80} height={SCENE_H - 60} rx="12" fill={wood} />
+          <rect x="100" y="100" width={SCENE_W - 200} height={SCENE_H - 170} rx="6" fill={fill === "weave" ? `url(#${u}-weave)` : fill === "boards" ? `url(#${u}-boards)` : `url(#${u}-straw)`} />
+          <rect x="100" y="100" width={SCENE_W - 200} height="50" fill="#000" opacity={0.25} />
+          <path d={`M40 60H${SCENE_W - 40}M40 ${SCENE_H - 40}H${SCENE_W - 40}`} stroke={shade(wood, 0.2)} strokeWidth={10} />
+        </g>
+      )}
+      <Vignette u={u} strength={0.5} />
+    </g>
+  );
+};
+
+/** An opened drawer seen from above: felt lining and dividers. */
+const interiorDrawer: BackdropRenderer = (u, o) => {
+  const wood = str(o, "wood", "#8a5a3b");
+  const felt = str(o, "felt", "#2f4863");
+  return (
+    <g>
+      <rect width={SCENE_W} height={SCENE_H} fill={shade(wood, -0.5)} />
+      <polygon points={`60,40 ${SCENE_W - 60},40 ${SCENE_W - 20},${SCENE_H} 20,${SCENE_H}`} fill={wood} />
+      <polygon points={`130,100 ${SCENE_W - 130},100 ${SCENE_W - 100},${SCENE_H - 40} 100,${SCENE_H - 40}`} fill={felt} />
+      <polygon points={`130,100 ${SCENE_W - 130},100 ${SCENE_W - 140},150 140,150`} fill="#000" opacity={0.25} />
+      <path d={`M${SCENE_W / 2} 100L${SCENE_W / 2} ${SCENE_H - 40}M115 470H${SCENE_W - 115}`} stroke={wood} strokeWidth={18} />
+      <rect x={SCENE_W / 2 - 90} y={SCENE_H - 40} width="180" height="24" rx="12" fill="#c9a25a" />
+      <LightPool u={u} k="l" cx={800} cy={360} rx={760} ry={380} color="#fff6dc" opacity={0.15} />
+      <Vignette u={u} strength={0.45} />
+    </g>
+  );
+};
+
+/** A woven bird's nest from above. */
+const interiorNest: BackdropRenderer = (u) => (
+  <g>
+    <rect width={SCENE_W} height={SCENE_H} fill="#3a2a1c" />
+    <LightPool u={u} k="sky" cx={800} cy={0} rx={900} ry={300} color="#fff1c9" opacity={0.35} />
+    <ellipse cx="800" cy="470" rx="760" ry="420" fill="#6b4a2b" />
+    <g fill="none" strokeLinecap="round">
+      {Array.from({ length: 60 }).map((_, i) => {
+        const a = (i / 60) * Math.PI * 2;
+        const r1 = 560 + (i % 5) * 30;
+        const x1 = Math.round(800 + Math.cos(a) * r1);
+        const y1 = Math.round(470 + Math.sin(a) * r1 * 0.55);
+        const x2 = Math.round(800 + Math.cos(a + 0.5) * (r1 + 120));
+        const y2 = Math.round(470 + Math.sin(a + 0.5) * (r1 + 120) * 0.55);
+        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={i % 2 ? "#8a6a44" : "#5e3c27"} strokeWidth={10} />;
+      })}
+    </g>
+    <ellipse cx="800" cy="480" rx="580" ry="310" fill="#c9a86a" />
+    <ellipse cx="800" cy="480" rx="580" ry="310" fill="none" stroke="#8a6a44" strokeWidth={30} strokeDasharray="40 20" />
+    <g stroke="#b8945e" strokeWidth={4} opacity={0.7}>
+      {Array.from({ length: 30 }).map((_, i) => (
+        <line key={i} x1={300 + ((i * 131) % 1000)} y1={260 + ((i * 71) % 420)} x2={380 + ((i * 131) % 1000)} y2={250 + ((i * 97) % 420)} />
+      ))}
+    </g>
+    <Vignette u={u} strength={0.5} />
+  </g>
+);
+
+/** Underwater: pond / fountain basin / specimen tank. */
+const interiorWater: BackdropRenderer = (u, o) => {
+  const top = str(o, "top", "#7ec8e3");
+  const deep = str(o, "deep", "#1f5a7a");
+  const floor = str(o, "floor", "#c9b48a");
+  return (
+    <g>
+      <defs>
+        <Grad id={`${u}-w`} stops={[[0, top], [100, deep]]} />
+        <Grad id={`${u}-ray`} stops={[[0, "#fff", 0.35], [100, "#fff", 0]]} />
+      </defs>
+      <rect width={SCENE_W} height={SCENE_H} fill={`url(#${u}-w)`} />
+      {[300, 700, 1100, 1400].map((x, i) => (
+        <polygon key={x} points={`${x},0 ${x + 90},0 ${x + 260 - i * 30},${SCENE_H} ${x + 120 - i * 30},${SCENE_H}`} fill={`url(#${u}-ray)`} />
+      ))}
+      <path d="M0 800c200-40 400 20 600-10s500-30 1000 10V900H0z" fill={floor} />
+      <g fill="#4f8a4a" opacity={0.85}>
+        <path d="M120 900c-20-120 30-220 0-340 40 100 60 220 30 340z" />
+        <path d="M180 900c20-100-20-180 20-280 20 90 10 200-10 280z" />
+        <path d="M1460 900c-30-140 40-240 0-380 50 120 70 250 30 380z" />
+        <path d="M1380 900c10-90-20-160 10-240 20 80 20 170 0 240z" />
+      </g>
+      <g fill="#fff" opacity={0.5}>
+        {[
+          [400, 300, 8],
+          [420, 250, 5],
+          [1000, 400, 7],
+          [1010, 350, 4],
+          [760, 180, 6],
+        ].map(([x, y, r], i) => (
+          <circle key={i} cx={x} cy={y} r={r} fill="none" stroke="#fff" strokeWidth={2} />
+        ))}
+      </g>
+      <Vignette u={u} strength={0.45} />
+    </g>
+  );
+};
+
+/** Inside a beehive: honeycomb walls. */
+const interiorHive: BackdropRenderer = (u) => (
+  <g>
+    <defs>
+      <pattern id={`${u}-comb`} width="104" height="180" patternUnits="userSpaceOnUse">
+        <rect width="104" height="180" fill="#b8751a" />
+        <path d="M52 0l52 30v60l-52 30L0 90V30zM0 90v60l52 30M104 90v60l-52 30" fill="#e8a820" stroke="#8a5a14" strokeWidth={6} />
+        <path d="M52 20l34 20v40l-34 20-34-20V40z" fill="#f2c230" opacity={0.6} />
+      </pattern>
+    </defs>
+    <rect width={SCENE_W} height={SCENE_H} fill={`url(#${u}-comb)`} />
+    <LightPool u={u} k="glow" cx={800} cy={420} rx={760} ry={420} color="#fff1c9" opacity={0.35} />
+    <Vignette u={u} strength={0.6} />
+  </g>
+);
+
+/** Holographic archive: dark grid with projector pads. */
+const interiorHolo: BackdropRenderer = (u, o) => {
+  const color = str(o, "color", "#5ce1e6");
+  return (
+    <g>
+      <rect width={SCENE_W} height={SCENE_H} fill="#070b14" />
+      <g stroke={color} strokeOpacity={0.12} strokeWidth={2}>
+        {Array.from({ length: 17 }).map((_, i) => (
+          <line key={`v${i}`} x1={i * 100} y1={0} x2={i * 100} y2={SCENE_H} />
+        ))}
+        {Array.from({ length: 10 }).map((_, i) => (
+          <line key={`h${i}`} x1={0} y1={i * 100} x2={SCENE_W} y2={i * 100} />
+        ))}
+      </g>
+      <ellipse cx="800" cy="860" rx="700" ry="60" fill={color} opacity={0.08} />
+      <ellipse cx="800" cy="860" rx="700" ry="60" fill="none" stroke={color} strokeOpacity={0.5} strokeWidth={3} />
+      <LightPool u={u} k="h" cx={800} cy={450} rx={760} ry={420} color={color} opacity={0.15} />
+      <Vignette u={u} strength={0.55} />
+    </g>
+  );
+};
+
 /* ------------------------------------------------------------------ */
 
 export const BACKDROPS: Record<string, BackdropRenderer> = {
@@ -913,6 +1102,13 @@ export const BACKDROPS: Record<string, BackdropRenderer> = {
   "interior-wardrobe": interiorWardrobe,
   "interior-case": interiorCase,
   "interior-bench": interiorBench,
+  "interior-table": interiorTable,
+  "interior-crate": interiorCrate,
+  "interior-drawer": interiorDrawer,
+  "interior-nest": interiorNest,
+  "interior-water": interiorWater,
+  "interior-hive": interiorHive,
+  "interior-holo": interiorHolo,
 };
 
 export function renderBackdrop(spec: BackdropSpec, u: string): ReactNode {

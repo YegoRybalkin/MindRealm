@@ -1,5 +1,6 @@
 import { getEnvironment } from "@/environments";
 import { sectionGenerator } from "@/lib/generation";
+import { canAddSection } from "@/lib/limits";
 import type { World } from "@/lib/types";
 import { flattenObjects } from "./objects";
 import { sortSections } from "./sections";
@@ -26,7 +27,7 @@ export function parseConceptList(text: string): ConceptInput[] {
  * world runs out of space. This is the same entry point a future "Generate Memory Palace
  * from Notes" AI pipeline would call after extracting concepts.
  */
-export async function placeConcepts(world: World, concepts: ConceptInput[]): Promise<{ world: World; placed: number; sectionsAdded: number }> {
+export async function placeConcepts(world: World, concepts: ConceptInput[]): Promise<{ world: World; placed: number; sectionsAdded: number; unplaced: number }> {
   let next = world;
   let placed = 0;
   let sectionsAdded = 0;
@@ -40,6 +41,7 @@ export async function placeConcepts(world: World, concepts: ConceptInput[]): Pro
         .map(({ object }) => ({ s, o: object })),
     );
     if (!free.length) {
+      if (!canAddSection(next.sections.length)) break; // world is full
       const section = await sectionGenerator.generate({ world: next, environment: env });
       next = addSection(next, section);
       sectionsAdded++;
@@ -52,5 +54,5 @@ export async function placeConcepts(world: World, concepts: ConceptInput[]): Pro
       placed++;
     }
   }
-  return { world: next, placed, sectionsAdded };
+  return { world: next, placed, sectionsAdded, unplaced: queue.length };
 }

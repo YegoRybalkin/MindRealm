@@ -25,6 +25,7 @@ import { useMemoryStore } from "@/lib/store/MemoryStore";
 import { TERMS, plural } from "@/lib/terminology";
 import type { Section, TestScope, WorldObject } from "@/lib/types";
 import { nowIso, pct } from "@/lib/utils";
+import { MAX_SECTIONS } from "@/lib/limits";
 import { ConceptPanel } from "./ConceptPanel";
 import { ImportConceptsDialog } from "./ImportConceptsDialog";
 import type { ContainerInfo, ObjectTestState } from "./InteractiveObject";
@@ -181,8 +182,13 @@ export function MemoryWorld({ worldId }: { worldId: string }) {
     [world, jumpTo],
   );
 
+  const atMax = sections.length >= MAX_SECTIONS;
   const generate = useCallback(async () => {
     if (!world || generating) return;
+    if (world.sections.length >= MAX_SECTIONS) {
+      toast(`This world is complete — ${MAX_SECTIONS} sections is the maximum.`, { description: "Fill the objects and containers you already have." });
+      return;
+    }
     setGenerating(true);
     try {
       const s = await store.generateSection(world.id);
@@ -367,6 +373,7 @@ export function MemoryWorld({ worldId }: { worldId: string }) {
         showLabels={showLabels}
         saving={store.saving}
         generating={generating}
+        sectionCount={sections.length}
         onToggleLabels={() => setShowLabels((v) => !v)}
         onModeChange={onModeChange}
         onSearch={() => setSearchOpen(true)}
@@ -378,7 +385,7 @@ export function MemoryWorld({ worldId }: { worldId: string }) {
       />
 
       <div className="pointer-events-none absolute inset-0 z-20">
-        {!container && <NavigationControls sections={sections} index={index} generating={generating} allowGenerate={mode === "learn"} onGo={goTo} onGenerate={generate} />}
+        {!container && <NavigationControls sections={sections} index={index} generating={generating} allowGenerate={mode === "learn" && !atMax} onGo={goTo} onGenerate={generate} />}
       </div>
 
       {/* Bottom bar */}
@@ -567,6 +574,7 @@ export function MemoryWorld({ worldId }: { worldId: string }) {
         world={world}
         currentSectionId={section.id}
         generating={generating}
+        atMax={atMax}
         onJump={(id) => {
           jumpTo(id);
           setMapOpen(false);

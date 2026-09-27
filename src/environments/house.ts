@@ -34,11 +34,13 @@ export const house: EnvironmentTemplate = {
       objects: [
         obj("door", "Front Door", "door-modern", 50, 69, 11.5),
         obj("coatrack", "Coat Rack", "coat-rack", 30, 74, 7),
-        obj("console", "Console Table", "console-table", 67, 70, 13.5),
+        obj("console", "Console Table", "console-table", 67, 70, 13.5, { interior: "house-entrance-drawer" }),
         obj("mirror", "Mirror", "mirror", 67, 50, 6),
         obj("umbrella", "Umbrella Stand", "umbrella-stand", 38, 72, 4),
         obj("lamp", "Floor Lamp", "floor-lamp", 85, 84, 7),
         obj("plant", "Potted Plant", "plant", 15, 92, 9.5),
+        obj("mat", "Welcome Mat", "doormat", 50, 76, 11),
+        obj("sneakers", "Sneakers", "sneakers", 74, 86, 6),
       ],
     },
     {
@@ -50,10 +52,12 @@ export const house: EnvironmentTemplate = {
         obj("sofa", "Sofa", "sofa", 56, 71, 27),
         obj("tv", "Television", "tv", 25, 77, 17.5),
         obj("lamp", "Floor Lamp", "floor-lamp", 72, 72, 5.5),
-        obj("table", "Coffee Table", "coffee-table", 56, 87, 17.5),
+        obj("table", "Coffee Table", "coffee-table", 56, 87, 17.5, { interior: "house-living-coffeetable" }),
         obj("art", "Abstract Print", "art-abstract", 56, 47, 7.5),
         obj("record", "Record Player", "record-player", 11, 95, 10),
         obj("plant", "Fiddle Leaf Plant", "plant", 90, 95, 9.5),
+        obj("armchair", "Armchair", "armchair-leather", 34, 93, 11),
+        obj("cat", "Sleeping Cat", "cat", 47, 62, 5, { z: 72 }),
       ],
     },
     {
@@ -69,6 +73,8 @@ export const house: EnvironmentTemplate = {
         obj("pendant", "Pendant Lamp", "pendant-lamp", 64, 24, 6),
         obj("table", "Breakfast Table", "coffee-table", 64, 88, 21.5),
         obj("fruit", "Fruit Bowl", "fruit-bowl", 61, 76.8, 7, { z: 89 }),
+        obj("chair", "Kitchen Chair", "kitchen-chair", 84, 90, 6),
+        obj("bin", "Trash Bin", "bin", 46, 74, 4),
       ],
     },
     {
@@ -83,6 +89,8 @@ export const house: EnvironmentTemplate = {
         obj("guitar", "Guitar", "guitar", 13, 91, 6),
         obj("window", "Curtained Window", "window-curtain", 50, 53, 15),
         obj("art", "Abstract Print", "art-abstract", 24, 52, 7),
+        obj("teddy", "Teddy Bear", "teddy", 60, 68, 4, { z: 83 }),
+        obj("laundry", "Laundry Basket", "laundry-basket", 30, 94, 8),
       ],
     },
     {
@@ -97,6 +105,8 @@ export const house: EnvironmentTemplate = {
         obj("whiteboard", "Whiteboard", "whiteboard", 62, 45, 15),
         obj("globe", "Desk Globe", "globe", 72, 84, 7),
         obj("plant", "Plant", "plant", 90, 94, 9.5),
+        obj("cabinet", "Filing Cabinet", "filing-cabinet", 86, 72, 6),
+        obj("mug", "Coffee Mug", "mug", 54, 60.4, 2.5, { z: 74 }),
       ],
     },
     {
@@ -111,6 +121,8 @@ export const house: EnvironmentTemplate = {
         obj("ladder", "Ladder", "ladder", 89, 71, 7),
         obj("tire", "Spare Tire", "tire", 23, 95, 8),
         obj("boxes", "Storage Boxes", "boxes", 74, 71, 12),
+        obj("mower", "Lawn Mower", "lawn-mower", 90, 95, 9),
+        obj("paint", "Paint Cans", "paint-cans", 32, 72, 6),
       ],
     },
     {
@@ -121,10 +133,12 @@ export const house: EnvironmentTemplate = {
       objects: [
         obj("tub", "Bathtub", "bathtub", 30, 75, 24.5),
         obj("duck", "Rubber Duck", "rubber-duck", 24, 60.6, 4, { z: 76 }),
-        obj("mirror", "Mirror", "mirror", 66, 46, 7),
+        obj("mirror", "Mirror", "mirror", 66, 46, 7, { interior: "house-bathroom-mirror" }),
         obj("towel", "Towel", "towel", 52, 46, 6),
         obj("washer", "Washing Machine", "washing-machine", 84, 72, 11),
         obj("plant", "Plant", "plant", 66, 93, 8),
+        obj("toilet", "Toilet", "toilet", 50, 76, 6.5),
+        obj("hamper", "Laundry Hamper", "laundry-basket", 30, 93, 7),
       ],
     },
   ],

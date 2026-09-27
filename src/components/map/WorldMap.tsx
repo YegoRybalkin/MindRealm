@@ -11,6 +11,7 @@ import { MasteryBar } from "@/components/common/ProgressIndicator";
 import { sectionStats } from "@/lib/domain/world";
 import { sortSections } from "@/lib/domain/sections";
 import { TERMS, plural } from "@/lib/terminology";
+import { MAX_SECTIONS } from "@/lib/limits";
 import type { Section, World } from "@/lib/types";
 import { cn, pct } from "@/lib/utils";
 
@@ -20,13 +21,14 @@ interface Props {
   world: World;
   currentSectionId: string;
   generating: boolean;
+  atMax: boolean;
   onJump: (sectionId: string) => void;
   onGenerate: () => void;
   onRename: (sectionId: string, name: string) => Promise<void>;
   onDelete: (sectionId: string) => Promise<void>;
 }
 
-export function WorldMap({ open, onOpenChange, world, currentSectionId, generating, onJump, onGenerate, onRename, onDelete }: Props) {
+export function WorldMap({ open, onOpenChange, world, currentSectionId, generating, atMax, onJump, onGenerate, onRename, onDelete }: Props) {
   const sections = sortSections(world.sections);
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
@@ -68,7 +70,7 @@ export function WorldMap({ open, onOpenChange, world, currentSectionId, generati
         <DialogHeader>
           <DialogTitle>{TERMS.worldMap}</DialogTitle>
           <DialogDescription>
-            {world.name} · {plural(sections.length, TERMS.section.toLowerCase())} · {plural(Object.keys(world.concepts).length, TERMS.concept.toLowerCase())}
+            {world.name} · {sections.length} of {MAX_SECTIONS} {TERMS.sections.toLowerCase()} · {plural(Object.keys(world.concepts).length, TERMS.concept.toLowerCase())}
           </DialogDescription>
         </DialogHeader>
         <div className="relative">
@@ -140,6 +142,14 @@ export function WorldMap({ open, onOpenChange, world, currentSectionId, generati
               );
             })}
             <li data-map-node className="relative">
+              {atMax ? (
+                <div className="flex aspect-[16/8] w-full flex-col items-center justify-center gap-1.5 rounded-2xl border border-dashed border-white/15 px-6 text-center text-muted-foreground sm:h-full sm:min-h-[180px]">
+                  <span className="font-medium text-foreground">World complete</span>
+                  <span className="text-xs">
+                    {MAX_SECTIONS} of {MAX_SECTIONS} {TERMS.sections.toLowerCase()} — the maximum. Every room still has containers to fill.
+                  </span>
+                </div>
+              ) : (
               <button
                 type="button"
                 onClick={onGenerate}
@@ -148,8 +158,11 @@ export function WorldMap({ open, onOpenChange, world, currentSectionId, generati
               >
                 {generating ? <Loader2 className="h-6 w-6 animate-spin" /> : <Plus className="h-6 w-6" />}
                 <span className="font-medium">{TERMS.generateSection}</span>
-                <span className="text-xs">Extend the world with a new area</span>
+                <span className="text-xs">
+                  Extend the world with a new area · {sections.length}/{MAX_SECTIONS}
+                </span>
               </button>
+              )}
             </li>
           </ol>
         </div>
