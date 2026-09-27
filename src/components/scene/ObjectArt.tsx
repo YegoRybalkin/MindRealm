@@ -2,6 +2,8 @@
 
 import { memo } from "react";
 import { getArt } from "./art";
+import { renderArt } from "./LookedArt";
+import { lookScale, type ObjectLook } from "@/lib/looks";
 import { useUid } from "./useUid";
 
 /** Fallback used if a template references an unknown visualType. */
@@ -21,21 +23,29 @@ function FallbackArt({ u }: { u: string }) {
   );
 }
 
-export const ObjectArt = memo(function ObjectArt({ visualType, flip, className }: { visualType: string; flip?: boolean; className?: string }) {
+export const ObjectArt = memo(function ObjectArt({ visualType, flip, look, className }: { visualType: string; flip?: boolean; look?: ObjectLook; className?: string }) {
   const u = useUid("a");
   const art = getArt(visualType);
   const w = art?.w ?? 80;
   const h = art?.h ?? 100;
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className={className} style={{ transform: flip ? "scaleX(-1)" : undefined, overflow: "visible" }} aria-hidden focusable="false">
-      {art ? art.render(u) : <FallbackArt u={u} />}
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      preserveAspectRatio={look ? "none" : undefined}
+      className={className}
+      style={{ transform: flip ? "scaleX(-1)" : undefined, overflow: "visible" }}
+      aria-hidden
+      focusable="false"
+    >
+      {art ? renderArt(art, u, look) : <FallbackArt u={u} />}
     </svg>
   );
 });
 
-export function artAspect(visualType: string) {
+export function artAspect(visualType: string, look?: ObjectLook) {
   const art = getArt(visualType);
-  return art ? art.w / art.h : 0.8;
+  const { sx, sy } = lookScale(look);
+  return (art ? art.w / art.h : 0.8) * (sx / sy);
 }
 
 export function isGrounded(visualType: string) {

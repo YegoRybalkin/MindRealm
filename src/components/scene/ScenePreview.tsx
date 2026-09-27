@@ -6,6 +6,8 @@ import { paintOrder } from "@/lib/domain/sections";
 import { getArt } from "./art";
 import { renderBackdrop, SCENE_H, SCENE_W } from "./backdrops";
 import { useUid } from "./useUid";
+import { renderArt } from "./LookedArt";
+import { lookScale, type ObjectLook } from "@/lib/looks";
 
 interface PreviewObject {
   id: string;
@@ -15,6 +17,7 @@ interface PreviewObject {
   flip?: boolean;
   z?: number;
   conceptId?: string | null;
+  look?: ObjectLook;
 }
 
 /**
@@ -40,15 +43,16 @@ export const ScenePreview = memo(function ScenePreview({
       {ordered.map((o, i) => {
         const art = getArt(o.visualType);
         if (!art) return null;
-        const w = (o.size / 100) * SCENE_W;
-        const h = (w * art.h) / art.w;
+        const { sx, sy } = lookScale(o.look);
+        const w = ((o.size * sx) / 100) * SCENE_W;
+        const h = (((o.size / 100) * SCENE_W) * art.h * sy) / art.w;
         const x = (o.position.x / 100) * SCENE_W - w / 2;
         const y = (o.position.y / 100) * SCENE_H - h;
         return (
           <g key={o.id}>
             {art.grounded !== false && <ellipse cx={x + w / 2} cy={y + h} rx={w * 0.46} ry={Math.max(4, w * 0.06)} fill="#000" opacity={0.28} />}
-            <svg x={x} y={y} width={w} height={h} viewBox={`0 0 ${art.w} ${art.h}`} overflow="visible">
-              <g transform={o.flip ? `translate(${art.w} 0) scale(-1 1)` : undefined}>{art.render(`${u}o${i}`)}</g>
+            <svg x={x} y={y} width={w} height={h} viewBox={`0 0 ${art.w} ${art.h}`} preserveAspectRatio={o.look ? "none" : undefined} overflow="visible">
+              <g transform={o.flip ? `translate(${art.w} 0) scale(-1 1)` : undefined}>{renderArt(art, `${u}o${i}`, o.look)}</g>
             </svg>
             {markConcepts && o.conceptId && <circle cx={x + w / 2} cy={y - 18} r={9} fill="#f3c969" stroke="#1a1408" strokeOpacity={0.5} strokeWidth={3} />}
           </g>

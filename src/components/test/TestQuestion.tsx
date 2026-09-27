@@ -48,7 +48,7 @@ export function TestQuestion({ open, onOpenChange, section, container, object, c
               <div className="pointer-events-none absolute inset-0 opacity-60" style={{ background: `radial-gradient(120% 90% at 20% 0%, ${glow}33, transparent 60%)` }} />
               <div className="relative flex items-center gap-4">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/5 p-2 ring-1 ring-white/10">
-                  <ObjectArt visualType={object.visualType} className="max-h-full max-w-full" />
+                  <ObjectArt visualType={object.visualType} look={object.look} className="max-h-full max-w-full" />
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-xs uppercase tracking-[0.16em] text-muted-foreground">

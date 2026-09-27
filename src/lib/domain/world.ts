@@ -6,6 +6,7 @@ import { applyReviewResult, averageMastery } from "./mastery";
 import { instantiateSection, sortSections } from "./sections";
 import { CURRENT_SCHEMA } from "./migrate";
 import { findObjectDeep, flattenObjects, mapObjectDeep } from "./objects";
+import { assignUniqueLooks } from "./looks";
 
 export interface NewWorldInput {
   name: string;
@@ -25,7 +26,7 @@ export function createWorld(input: NewWorldInput): World {
   const env = getEnvironment(input.environmentType);
   const at = nowIso();
   const count = Math.min(env.startingSections, env.sections.length);
-  const sections = env.sections.slice(0, count).map((t, i) => instantiateSection(t, i));
+  const sections = assignUniqueLooks(env.sections.slice(0, count).map((t, i) => instantiateSection(t, i)));
   return {
     id: createId("wld"),
     name: input.name.trim(),
@@ -102,7 +103,7 @@ export function removeConcept(world: World, sectionId: string, objectId: string)
 }
 
 export function addSection(world: World, section: Section): World {
-  return touch({ ...world, sections: [...world.sections, section] });
+  return touch({ ...world, sections: assignUniqueLooks([...world.sections, section]) });
 }
 
 export function removeSection(world: World, sectionId: string): World {

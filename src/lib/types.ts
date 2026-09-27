@@ -38,6 +38,11 @@ export interface WorldObject {
   /** Key of the template object this was created from (used for upgrades). */
   templateKey?: string;
   /**
+   * Distinct appearance for repeated object kinds (see lib/looks.ts). Absent means
+   * the original illustration.
+   */
+  look?: { preset: number };
+  /**
    * Openable containers (wardrobes, shelves, chests…) hold a close-up scene with
    * their own objects. The container itself can still carry a concept.
    */

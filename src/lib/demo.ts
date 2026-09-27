@@ -1,6 +1,7 @@
 import { findSectionTemplate } from "@/environments";
 import { CURRENT_SCHEMA } from "@/lib/domain/migrate";
 import { instantiateSection } from "@/lib/domain/sections";
+import { assignUniqueLooks } from "@/lib/domain/looks";
 import { computeMastery } from "@/lib/domain/mastery";
 import { createId } from "@/lib/id";
 import type { Concept, Section, World } from "@/lib/types";
@@ -125,7 +126,7 @@ export function createDemoWorld(): World {
   const created = new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString();
   const reviewed = new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString();
   const concepts: Record<string, Concept> = {};
-  const sections = [build("castle-great-hall", 0, GREAT_HALL, concepts, reviewed), build("castle-library", 1, LIBRARY, concepts, reviewed)];
+  const sections = assignUniqueLooks([build("castle-great-hall", 0, GREAT_HALL, concepts, reviewed), build("castle-library", 1, LIBRARY, concepts, reviewed)]);
   return {
     id: createId("wld"),
     name: "Sociology Foundations",

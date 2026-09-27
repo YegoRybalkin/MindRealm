@@ -39,7 +39,7 @@ export function ReviewMistakes({
               <li key={m.objectId} className="rounded-2xl border bg-white/[0.02] p-4">
                 <div className="flex gap-4">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/5 p-1.5">
-                    <ObjectArt visualType={object.visualType} className="max-h-full max-w-full" />
+                    <ObjectArt visualType={object.visualType} look={object.look} className="max-h-full max-w-full" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-muted-foreground">

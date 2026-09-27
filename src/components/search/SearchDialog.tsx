@@ -90,7 +90,7 @@ export function SearchDialog({ open, onOpenChange, dark }: { open: boolean; onOp
                 className={cn("flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors", i === active && "bg-accent")}
               >
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-muted p-1.5">
-                  <ObjectArt visualType={h.object.visualType} className="max-h-full max-w-full" />
+                  <ObjectArt visualType={h.object.visualType} look={h.object.look} className="max-h-full max-w-full" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{h.concept.title}</span>

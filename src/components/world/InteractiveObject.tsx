@@ -6,6 +6,7 @@ import { ObjectArt, artAspect, isGrounded } from "@/components/scene/ObjectArt";
 import { LEVEL_COLOR } from "@/components/common/ProgressIndicator";
 import { masteryLevel } from "@/lib/domain/mastery";
 import type { Concept, WorldObject } from "@/lib/types";
+import { lookScale } from "@/lib/looks";
 import { cn } from "@/lib/utils";
 
 export type ObjectTestState = "pending" | "correct" | "incorrect" | "inactive";
@@ -32,6 +33,7 @@ interface Props {
 
 export const InteractiveObject = memo(function InteractiveObject({ object, mode, concept, showLabel, testState, highlighted, selected, glow, zIndex, container, onSelect }: Props) {
   const { x, y } = object.position;
+  const width = object.size * lookScale(object.look).sx;
   const inactive = mode === "test" && testState === "inactive";
   const level = concept ? masteryLevel(concept) : null;
 
@@ -77,7 +79,7 @@ export const InteractiveObject = memo(function InteractiveObject({ object, mode,
         "group absolute block -translate-y-full rounded-lg outline-none",
         inactive ? "cursor-default" : "cursor-pointer",
       )}
-      style={{ left: `${x - object.size / 2}%`, top: `${y}%`, width: `${object.size}%`, zIndex, ["--glow" as string]: glow } as CSSProperties}
+      style={{ left: `${x - width / 2}%`, top: `${y}%`, width: `${width}%`, zIndex, ["--glow" as string]: glow } as CSSProperties}
     >
       {isGrounded(object.visualType) && (
         <span className="pointer-events-none absolute -bottom-[3%] left-[4%] right-[4%] h-[8%] min-h-[4px] rounded-[50%] bg-black/35 blur-[3px]" aria-hidden />
@@ -100,9 +102,9 @@ export const InteractiveObject = memo(function InteractiveObject({ object, mode,
           highlighted && "[filter:drop-shadow(0_0_18px_#ffe6a6)_drop-shadow(0_0_6px_#fff)_brightness(1.15)]",
           inactive && "opacity-40 saturate-[0.35]",
         )}
-        style={{ aspectRatio: artAspect(object.visualType) }}
+        style={{ aspectRatio: artAspect(object.visualType, object.look) }}
       >
-        <ObjectArt visualType={object.visualType} flip={object.flip} className="block h-full w-full" />
+        <ObjectArt visualType={object.visualType} flip={object.flip} look={object.look} className="block h-full w-full" />
       </span>
 
       {/* marker */}
