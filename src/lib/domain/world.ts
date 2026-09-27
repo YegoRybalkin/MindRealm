@@ -4,6 +4,8 @@ import type { Concept, Section, World, WorldObject } from "@/lib/types";
 import { nowIso } from "@/lib/utils";
 import { applyReviewResult, averageMastery } from "./mastery";
 import { instantiateSection, sortSections } from "./sections";
+import { CURRENT_SCHEMA } from "./migrate";
+import { findObjectDeep, flattenObjects, mapObjectDeep } from "./objects";
 
 export interface NewWorldInput {
   name: string;
@@ -33,6 +35,7 @@ export function createWorld(input: NewWorldInput): World {
     createdAt: at,
     updatedAt: at,
     lastStudiedAt: null,
+    schemaVersion: CURRENT_SCHEMA,
     sections,
     concepts: {},
   };
@@ -46,15 +49,15 @@ function mapObject(world: World, sectionId: string, objectId: string, fn: (o: Wo
   return {
     ...world,
     sections: world.sections.map((s) =>
-      s.id !== sectionId ? s : { ...s, objects: s.objects.map((o) => (o.id === objectId ? fn(o) : o)) },
+      s.id !== sectionId ? s : { ...s, objects: mapObjectDeep(s.objects, objectId, fn) },
     ),
   };
 }
 
 export function findObject(world: World, sectionId: string, objectId: string) {
   const section = world.sections.find((s) => s.id === sectionId);
-  const object = section?.objects.find((o) => o.id === objectId);
-  return { section, object };
+  const found = section ? findObjectDeep(section.objects, objectId) : undefined;
+  return { section, object: found?.object, container: found?.container ?? null };
 }
 
 /** Create or update the concept attached to an object. */
@@ -106,7 +109,7 @@ export function removeSection(world: World, sectionId: string): World {
   const section = world.sections.find((s) => s.id === sectionId);
   if (!section) return world;
   const concepts = { ...world.concepts };
-  for (const o of section.objects) if (o.conceptId) delete concepts[o.conceptId];
+  for (const { object: o } of flattenObjects(section.objects)) if (o.conceptId) delete concepts[o.conceptId];
   const sections = sortSections(world.sections.filter((s) => s.id !== sectionId)).map((s, i) => ({ ...s, order: i }));
   return touch({ ...world, sections, concepts });
 }
@@ -133,14 +136,14 @@ export function markStudied(world: World): World {
 /* ---------- derived stats ---------- */
 
 export function sectionConcepts(world: World, section: Section): Concept[] {
-  return section.objects.flatMap((o) => (o.conceptId && world.concepts[o.conceptId] ? [world.concepts[o.conceptId]] : []));
+  return flattenObjects(section.objects).flatMap(({ object: o }) => (o.conceptId && world.concepts[o.conceptId] ? [world.concepts[o.conceptId]] : []));
 }
 
 export function worldStats(world: World) {
   const concepts = Object.values(world.concepts);
   const totalAttempts = concepts.reduce((s, c) => s + c.totalAttempts, 0);
   const correctAttempts = concepts.reduce((s, c) => s + c.correctAttempts, 0);
-  const objectCount = world.sections.reduce((s, sec) => s + sec.objects.length, 0);
+  const objectCount = world.sections.reduce((s, sec) => s + flattenObjects(sec.objects).length, 0);
   return {
     conceptCount: concepts.length,
     sectionCount: world.sections.length,
@@ -154,5 +157,5 @@ export function worldStats(world: World) {
 
 export function sectionStats(world: World, section: Section) {
   const concepts = sectionConcepts(world, section);
-  return { conceptCount: concepts.length, objectCount: section.objects.length, mastery: averageMastery(concepts) };
+  return { conceptCount: concepts.length, objectCount: flattenObjects(section.objects).length, mastery: averageMastery(concepts) };
 }

@@ -3,12 +3,15 @@ import { createId } from "@/lib/id";
 import { nowIso } from "@/lib/utils";
 import { isWeak } from "./mastery";
 import { matchAnswer } from "./matching";
+import { flattenObjects } from "./objects";
 import { sortSections } from "./sections";
 
 export interface TestTarget {
   sectionId: string;
   objectId: string;
   conceptId: string;
+  /** Set when the object sits inside a container (wardrobe, shelf…). */
+  containerId?: string;
 }
 
 export interface TestAnswer extends TestTarget {
@@ -32,11 +35,11 @@ export function buildTargets(world: World, scope: TestScope, sectionId?: string)
   const targets: TestTarget[] = [];
   for (const section of sortSections(world.sections)) {
     if (scope === "section" && section.id !== sectionId) continue;
-    for (const o of section.objects) {
+    for (const { object: o, container } of flattenObjects(section.objects)) {
       const c = o.conceptId ? world.concepts[o.conceptId] : undefined;
       if (!c) continue;
       if (scope === "weak" && !isWeak(c)) continue;
-      targets.push({ sectionId: section.id, objectId: o.id, conceptId: c.id });
+      targets.push({ sectionId: section.id, objectId: o.id, conceptId: c.id, containerId: container?.id });
     }
   }
   return targets;

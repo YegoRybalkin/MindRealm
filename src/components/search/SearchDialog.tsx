@@ -11,9 +11,10 @@ import { useMemoryStore } from "@/lib/store/MemoryStore";
 import { TERMS } from "@/lib/terminology";
 import { cn } from "@/lib/utils";
 
-export function worldHref(worldId: string, sectionId?: string, objectId?: string) {
+export function worldHref(worldId: string, sectionId?: string, objectId?: string, containerId?: string | null) {
   const q = new URLSearchParams();
   if (sectionId) q.set("s", sectionId);
+  if (containerId) q.set("open", containerId);
   if (objectId) q.set("focus", objectId);
   const qs = q.toString();
   return `/worlds/${worldId}${qs ? `?${qs}` : ""}`;
@@ -38,7 +39,7 @@ export function SearchDialog({ open, onOpenChange, dark }: { open: boolean; onOp
     const h = hits[i];
     if (!h) return;
     onOpenChange(false);
-    router.push(worldHref(h.world.id, h.section.id, h.object.id));
+    router.push(worldHref(h.world.id, h.section.id, h.object.id, h.container?.id));
   };
 
   return (
@@ -99,6 +100,12 @@ export function SearchDialog({ open, onOpenChange, dark }: { open: boolean; onOp
                     {h.environmentName}
                     <ChevronRight className="h-3 w-3 shrink-0" />
                     {h.section.name}
+                    {h.container && (
+                      <>
+                        <ChevronRight className="h-3 w-3 shrink-0" />
+                        {h.container.name}
+                      </>
+                    )}
                     <ChevronRight className="h-3 w-3 shrink-0" />
                     {h.object.name}
                   </span>

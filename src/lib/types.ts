@@ -35,6 +35,20 @@ export interface WorldObject {
   /** Explicit stacking order; objects are otherwise layered by their y position. */
   z?: number;
   conceptId: string | null;
+  /** Key of the template object this was created from (used for upgrades). */
+  templateKey?: string;
+  /**
+   * Openable containers (wardrobes, shelves, chests…) hold a close-up scene with
+   * their own objects. The container itself can still carry a concept.
+   */
+  contents?: ObjectInterior;
+}
+
+export interface ObjectInterior {
+  /** Title for the close-up view, e.g. "Inside the Wardrobe". */
+  title: string;
+  background: BackdropSpec;
+  objects: WorldObject[];
 }
 
 export interface Section {
@@ -81,6 +95,8 @@ export interface World {
   updatedAt: string;
   lastStudiedAt: string | null;
   isDemo?: boolean;
+  /** Data format version; older worlds are upgraded on load (lib/domain/migrate.ts). */
+  schemaVersion?: number;
   sections: Section[];
   concepts: Record<string, Concept>;
 }

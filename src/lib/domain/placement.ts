@@ -1,6 +1,7 @@
 import { getEnvironment } from "@/environments";
 import { sectionGenerator } from "@/lib/generation";
 import type { World } from "@/lib/types";
+import { flattenObjects } from "./objects";
 import { sortSections } from "./sections";
 import { addSection, upsertConcept, type ConceptInput } from "./world";
 
@@ -33,7 +34,11 @@ export async function placeConcepts(world: World, concepts: ConceptInput[]): Pro
   const env = getEnvironment(world.environmentType);
   let guard = 0;
   while (queue.length && guard++ < 500) {
-    const free = sortSections(next.sections).flatMap((s) => s.objects.filter((o) => !o.conceptId).map((o) => ({ s, o })));
+    const free = sortSections(next.sections).flatMap((s) =>
+      flattenObjects(s.objects)
+        .filter(({ object }) => !object.conceptId)
+        .map(({ object }) => ({ s, o: object })),
+    );
     if (!free.length) {
       const section = await sectionGenerator.generate({ world: next, environment: env });
       next = addSection(next, section);

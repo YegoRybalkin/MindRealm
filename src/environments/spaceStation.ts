@@ -1,5 +1,5 @@
 import type { EnvironmentTemplate } from "./types";
-import { obj } from "./helpers";
+import { obj, wallpaper, wp } from "./helpers";
 
 export const spaceStation: EnvironmentTemplate = {
   id: "spaceStation",
@@ -9,12 +9,26 @@ export const spaceStation: EnvironmentTemplate = {
   theme: { ambient: "#070a12", glow: "#7af3ff", cardFrom: "#1e2b45", cardTo: "#05070d" },
   startingSections: 3,
   variantPrefixes: ["Module B", "Module C", "Deck 2", "Deck 3", "Auxiliary"],
+  wallpaperPool: [
+    wallpaper("grid", "#1f2a36", "#34506a", "#5ce1e6"),
+    wallpaper("dots", "#2a2233", "#4a3a5a", "#ff79c6"),
+    wallpaper("chevron", "#2a3038", "#3a4452", "#59d98e"),
+    wallpaper("scales", "#1a2a30", "#2a4a50", "#7af3ff"),
+    wallpaper("argyle", "#2a2a36", "#3a3a4c", "#ffd166"),
+    wallpaper("pinstripe", "#232a33", "#3a4a5a", "#ff5c6c"),
+    wallpaper("checker", "#22262e", "#2a303a", "#5ce1e6"),
+    wallpaper("herringbone", "#2b2f38", "#363c48", "#ff9f43"),
+    wallpaper("quatrefoil", "#1e2433", "#2f3a55", "#9ad0ff"),
+    wallpaper("ogee", "#231d2e", "#3a2f4d", "#c77dff"),
+    wallpaper("circuit", "#16241d", "#24402f", "#59d98e"),
+    wallpaper("hexagon", "#2e2626", "#4a3434", "#ff7b5c"),
+  ],
   sections: [
     {
       id: "station-airlock",
       name: "Airlock",
       blurb: "Pressure seals hiss; the stars wait outside.",
-      background: { kind: "station", options: { viewport: "round", accent: "#ff9f43", wall: "#2b3240" } },
+      background: { kind: "station", options: { ...wp("hazard", "#2b3240", "#36424f", "#ff9f43"), viewport: "round", accent: "#ff9f43", wall: "#2b3240" } },
       objects: [
         obj("hatch", "Airlock Hatch", "hatch", 24, 70, 14.5),
         obj("suit", "Space Suit", "spacesuit", 70, 72, 7),
@@ -28,7 +42,7 @@ export const spaceStation: EnvironmentTemplate = {
       id: "station-command",
       name: "Command Center",
       blurb: "A panoramic bridge above a blue planet.",
-      background: { kind: "station", options: { viewport: "panorama", planet: "#3f6fb0", accent: "#5ce1e6" } },
+      background: { kind: "station", options: { ...wp("hexagon", "#1d2632", "#2d4a5a", "#5ce1e6"), viewport: "panorama", planet: "#3f6fb0", accent: "#5ce1e6" } },
       objects: [
         obj("console", "Main Console", "console", 50, 78, 34),
         obj("chair", "Captain's Chair", "captain-chair", 50, 95, 10.5),
@@ -42,7 +56,7 @@ export const spaceStation: EnvironmentTemplate = {
       id: "station-lab",
       name: "Laboratory",
       blurb: "Specimens glow in humming tanks.",
-      background: { kind: "station", options: { viewport: "none", accent: "#c77dff", wall: "#27303d" } },
+      background: { kind: "station", options: { ...wp("circuit", "#231f33", "#3b2f55", "#c77dff"), viewport: "none", accent: "#c77dff", wall: "#27303d" } },
       objects: [
         obj("microscope", "Microscope", "microscope", 30, 76, 8),
         obj("tubes", "Test Tubes", "test-tubes", 46, 72, 10.5),
@@ -56,10 +70,10 @@ export const spaceStation: EnvironmentTemplate = {
       id: "station-quarters",
       name: "Crew Quarters",
       blurb: "A small, warm refuge in the dark.",
-      background: { kind: "station", options: { viewport: "round", planet: "#c77a4a", accent: "#ffb86b", wall: "#333a48" } },
+      background: { kind: "station", options: { ...wp("waves", "#3a2e2a", "#54423a", "#ffb86b"), viewport: "round", planet: "#c77a4a", accent: "#ffb86b", wall: "#333a48" } },
       objects: [
         obj("bunk", "Sleep Pod", "bunk-pod", 25, 72, 23.5),
-        obj("locker", "Lockers", "locker", 76, 70, 9),
+        obj("locker", "Lockers", "locker", 76, 70, 9, { interior: "station-quarters-locker" }),
         obj("food", "Food Dispenser", "food-dispenser", 89, 75, 8),
         obj("plant", "Plant Pod", "plant-pod", 60, 85, 6.5),
         obj("guitar", "Guitar", "guitar", 41, 93, 5),
@@ -70,7 +84,7 @@ export const spaceStation: EnvironmentTemplate = {
       id: "station-engine",
       name: "Engine Room",
       blurb: "The reactor's pulse, felt through the floor.",
-      background: { kind: "station", options: { viewport: "none", accent: "#ff9f43", wall: "#2b2a30" } },
+      background: { kind: "station", options: { ...wp("triangles", "#2b2a30", "#36343c", "#ff9f43"), viewport: "none", accent: "#ff9f43", wall: "#2b2a30" } },
       objects: [
         obj("reactor", "Reactor Core", "reactor", 50, 70, 17),
         obj("valve", "Pressure Valve", "valve", 22, 73, 13),
@@ -84,7 +98,7 @@ export const spaceStation: EnvironmentTemplate = {
       id: "station-observation",
       name: "Observation Deck",
       blurb: "Nothing but the view.",
-      background: { kind: "station", options: { viewport: "panorama", planet: "#6a4fb0", accent: "#c77dff" } },
+      background: { kind: "station", options: { ...wp("stars", "#151a2e", "#6a5aa8", "#c77dff"), viewport: "panorama", planet: "#6a4fb0", accent: "#c77dff" } },
       objects: [
         obj("telescope", "Telescope", "space-telescope", 23, 81, 13),
         obj("lounge", "Lounge Chair", "lounge-chair", 54, 87, 15.5),
@@ -98,13 +112,13 @@ export const spaceStation: EnvironmentTemplate = {
       id: "station-medbay",
       name: "Med Bay",
       blurb: "Sterile light and soft machine tones.",
-      background: { kind: "station", options: { viewport: "none", accent: "#59d98e", wall: "#2e3a44" } },
+      background: { kind: "station", options: { ...wp("plus", "#22313a", "#2f4a45", "#59d98e"), viewport: "none", accent: "#59d98e", wall: "#2e3a44" } },
       objects: [
         obj("pod", "Med Pod", "med-pod", 40, 79, 23.5),
         obj("scanner", "Body Scanner", "body-scanner", 77, 72, 9),
         obj("monitor", "Vitals Monitor", "vitals-monitor", 61, 77, 6.5),
         obj("tubes", "Sample Rack", "test-tubes", 18, 71, 9),
-        obj("medkit", "Medkit", "medkit", 89, 94, 8),
+        obj("medkit", "Medkit", "medkit", 89, 94, 8, { interior: "station-medbay-medkit" }),
         obj("panel", "Wall Panel", "control-panel", 50, 50, 6),
       ],
     },

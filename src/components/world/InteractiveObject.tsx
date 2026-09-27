@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, type CSSProperties } from "react";
-import { Check, Plus, X } from "lucide-react";
+import { Check, PackageOpen, Plus, X } from "lucide-react";
 import { ObjectArt, artAspect, isGrounded } from "@/components/scene/ObjectArt";
 import { LEVEL_COLOR } from "@/components/common/ProgressIndicator";
 import { masteryLevel } from "@/lib/domain/mastery";
@@ -9,6 +9,12 @@ import type { Concept, WorldObject } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export type ObjectTestState = "pending" | "correct" | "incorrect" | "inactive";
+
+/** Summary for openable containers: concepts inside / objects inside. */
+export interface ContainerInfo {
+  filled: number;
+  total: number;
+}
 
 interface Props {
   object: WorldObject;
@@ -20,16 +26,18 @@ interface Props {
   selected?: boolean;
   glow: string;
   zIndex: number;
+  container?: ContainerInfo;
   onSelect: (object: WorldObject) => void;
 }
 
-export const InteractiveObject = memo(function InteractiveObject({ object, mode, concept, showLabel, testState, highlighted, selected, glow, zIndex, onSelect }: Props) {
+export const InteractiveObject = memo(function InteractiveObject({ object, mode, concept, showLabel, testState, highlighted, selected, glow, zIndex, container, onSelect }: Props) {
   const { x, y } = object.position;
   const inactive = mode === "test" && testState === "inactive";
   const level = concept ? masteryLevel(concept) : null;
 
-  const aria =
-    mode === "learn"
+  const aria = container
+    ? `Open ${object.name} — ${container.filled} of ${container.total} objects inside hold concepts`
+    : mode === "learn"
       ? `${object.name}${concept ? ` — ${concept.title}` : " — add a concept"}`
       : inactive
         ? `${object.name} — no concept to recall`
@@ -37,8 +45,16 @@ export const InteractiveObject = memo(function InteractiveObject({ object, mode,
           ? `${object.name} — recall the concept`
           : `${object.name} — already answered`;
 
-  const label =
-    mode === "learn" ? (
+  const label = container ? (
+    <span className="inline-flex items-center gap-1.5">
+      <PackageOpen className="h-3 w-3" /> Open {object.name}
+      {mode === "learn" && (
+        <span className="text-white/60">
+          · {container.filled}/{container.total}
+        </span>
+      )}
+    </span>
+  ) : mode === "learn" ? (
       concept ? (
         concept.title
       ) : (
@@ -91,7 +107,13 @@ export const InteractiveObject = memo(function InteractiveObject({ object, mode,
 
       {/* marker */}
       <span className="pointer-events-none absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2" aria-hidden>
-        {mode === "learn" && concept && level && (
+        {mode === "learn" && container && (
+          <span className="flex h-5 min-w-5 items-center justify-center gap-0.5 rounded-full bg-black/60 px-1.5 text-[10px] font-semibold text-white ring-1 ring-white/25 backdrop-blur">
+            <PackageOpen className="h-2.5 w-2.5" />
+            {container.filled > 0 && container.filled}
+          </span>
+        )}
+        {mode === "learn" && !container && concept && level && (
           <span className="block h-2.5 w-2.5 rotate-45 rounded-[2px] border border-black/40 shadow-[0_0_8px_rgba(255,220,140,.7)]" style={{ background: LEVEL_COLOR[level] }} />
         )}
         {mode === "test" && testState === "pending" && <span className="block h-2.5 w-2.5 rounded-full border-2 border-white/80 bg-white/10 shadow-[0_0_10px_rgba(255,255,255,.6)]" />}
@@ -113,7 +135,7 @@ export const InteractiveObject = memo(function InteractiveObject({ object, mode,
           className={cn(
             "pointer-events-none absolute left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-medium leading-none text-white shadow-lg transition-all duration-200 sm:text-xs",
             "bottom-full mb-5 bg-black/70 backdrop-blur-md ring-1 ring-white/10",
-            (showLabel || highlighted) && mode === "learn" && concept ? "opacity-100" : "translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100",
+            (showLabel || highlighted) && mode === "learn" && (concept || container) ? "opacity-100" : "translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100",
           )}
         >
           {label}

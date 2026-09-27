@@ -3,6 +3,7 @@ import { castleArt } from "./castle";
 import { houseArt } from "./house";
 import { gardenArt } from "./garden";
 import { stationArt } from "./station";
+import { itemArt } from "./items";
 
 /**
  * Registry of every object illustration, keyed by `visualType`.
@@ -13,6 +14,7 @@ export const ART: Record<string, ArtDef> = {
   ...houseArt,
   ...gardenArt,
   ...stationArt,
+  ...itemArt,
 };
 
 export function getArt(visualType: string): ArtDef | undefined {

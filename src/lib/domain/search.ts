@@ -1,12 +1,15 @@
 import { getEnvironment } from "@/environments";
 import type { Concept, Section, World, WorldObject } from "@/lib/types";
 import { normalizeAnswer } from "./matching";
+import { flattenObjects } from "./objects";
 
 export interface SearchHit {
   world: World;
   section: Section;
   object: WorldObject;
   concept: Concept;
+  /** Container holding the object, if it's inside one. */
+  container: WorldObject | null;
   environmentName: string;
   score: number;
 }
@@ -20,12 +23,12 @@ export function searchConcepts(worlds: World[], query: string, limit = 30): Sear
   for (const world of worlds) {
     const env = getEnvironment(world.environmentType);
     for (const section of world.sections) {
-      for (const object of section.objects) {
+      for (const { object, container } of flattenObjects(section.objects)) {
         const concept = object.conceptId ? world.concepts[object.conceptId] : undefined;
         if (!concept) continue;
         const title = normalizeAnswer(concept.title);
         const body = normalizeAnswer(`${concept.description} ${concept.example ?? ""} ${concept.notes ?? ""}`);
-        const where = normalizeAnswer(`${object.name} ${section.name} ${world.name} ${world.subject ?? ""}`);
+        const where = normalizeAnswer(`${object.name} ${container?.name ?? ""} ${section.name} ${world.name} ${world.subject ?? ""}`);
         let score = 0;
         if (title === q) score += 100;
         else if (title.startsWith(q)) score += 60;
@@ -39,7 +42,7 @@ export function searchConcepts(worlds: World[], query: string, limit = 30): Sear
             break;
           }
         }
-        if (score > 0) hits.push({ world, section, object, concept, environmentName: env.name, score });
+        if (score > 0) hits.push({ world, section, object, concept, container, environmentName: env.name, score });
       }
     }
   }

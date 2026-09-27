@@ -1,5 +1,6 @@
 import type { SectionGenerator, SectionGenerationContext } from "./types";
 import { instantiateSection } from "@/lib/domain/sections";
+import { ensureUniqueWallpaper } from "@/lib/domain/wallpapers";
 import type { Section } from "@/lib/types";
 
 const ROMAN = ["", " II", " III", " IV", " V", " VI", " VII", " VIII", " IX", " X"];
@@ -12,7 +13,11 @@ const ROMAN = ["", " II", " III", " IV", " V", " VI", " VII", " VIII", " IX", " 
 export class TemplateSectionGenerator implements SectionGenerator {
   readonly id = "template";
 
-  async generate({ world, environment }: SectionGenerationContext): Promise<Section> {
+  async generate(ctx: SectionGenerationContext): Promise<Section> {
+    return ensureUniqueWallpaper(this.build(ctx), ctx.world.sections, ctx.environment);
+  }
+
+  private build({ world, environment }: SectionGenerationContext): Section {
     const pool = environment.sections;
     const order = world.sections.reduce((m, s) => Math.max(m, s.order), -1) + 1;
     const used = new Set(world.sections.map((s) => s.templateId));

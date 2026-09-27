@@ -1,5 +1,5 @@
 import type { EnvironmentTemplate } from "./types";
-import { obj } from "./helpers";
+import { obj, wallpaper, wp } from "./helpers";
 
 export const castle: EnvironmentTemplate = {
   id: "castle",
@@ -9,12 +9,26 @@ export const castle: EnvironmentTemplate = {
   theme: { ambient: "#15110e", glow: "#ffcf7a", cardFrom: "#3b2a1f", cardTo: "#120d0a" },
   startingSections: 3,
   variantPrefixes: ["North Wing", "East Wing", "West Wing", "Upper", "Lower", "Old"],
+  wallpaperPool: [
+    wallpaper("plaid", "#2c3e2a", "#7b1f2a", "#d6a84a"),
+    wallpaper("ogee", "#3b2a4a", "#8a6aa8", "#e0c07a"),
+    wallpaper("scales", "#2a3a4a", "#4f6f8f", "#c9a14a"),
+    wallpaper("herringbone", "#5a3a28", "#6e4a32", "#4a2e1c"),
+    wallpaper("triangles", "#4a1f24", "#6a2a32", "#d6a84a"),
+    wallpaper("leaves", "#2a3a2a", "#4f6b44", "#8a9a5a"),
+    wallpaper("artdeco", "#1f2a33", "#c9a14a", "#7fa6c8"),
+    wallpaper("dots", "#3a2530", "#8a5a6a", "#d6a84a"),
+    wallpaper("pinstripe", "#3b3a36", "#c9a14a", "#7b1f2a"),
+    wallpaper("checker", "#2d2a26", "#3c3833", "#6b5a3a"),
+    wallpaper("waves", "#1e3140", "#3d6a86", "#c9a14a"),
+    wallpaper("tapestry", "#4a1f2a", "#c9a14a", "#e8dcc2"),
+  ],
   sections: [
     {
       id: "castle-entrance",
       name: "Entrance",
       blurb: "Torchlight flickers across the gatehouse stones.",
-      background: { kind: "castle-interior", options: { wall: "#5d544b", floor: "#3b332c", glowX: 40 } },
+      background: { kind: "castle-interior", options: { ...wp("fleur", "#243553", "#c9a14a", "#c9a14a"), wall: "#5d544b", floor: "#3b332c", glowX: 40 } },
       objects: [
         obj("door", "Great Door", "door-arch", 50, 69, 15.5),
         obj("torch", "Wall Torch", "torch", 38, 45, 3.5),
@@ -22,14 +36,14 @@ export const castle: EnvironmentTemplate = {
         obj("armor", "Suit of Armor", "armor", 24, 80, 8.5),
         obj("bench", "Stone Bench", "bench-stone", 74, 82, 17),
         obj("lantern", "Iron Lantern", "lantern", 88, 94, 5.5),
-        obj("chest", "Travel Chest", "chest", 13, 95, 11),
+        obj("chest", "Travel Chest", "chest", 13, 95, 11, { interior: "castle-entrance-chest" }),
       ],
     },
     {
       id: "castle-great-hall",
       name: "Great Hall",
       blurb: "A roaring hearth and a throne beneath the chandelier.",
-      background: { kind: "castle-interior", options: { wall: "#665a4e", floor: "#40352b", rug: "#6d1a26", glowX: 22 } },
+      background: { kind: "castle-interior", options: { ...wp("damask", "#5e1520", "#8e2433", "#d4a84a"), wall: "#665a4e", floor: "#40352b", rug: "#6d1a26", glowX: 22 } },
       objects: [
         obj("fireplace", "Fireplace", "fireplace", 22, 70, 16),
         obj("throne", "Throne", "throne", 50, 76, 9),
@@ -44,9 +58,9 @@ export const castle: EnvironmentTemplate = {
       id: "castle-library",
       name: "Library",
       blurb: "Dust, parchment, and the slow tick of an old clock.",
-      background: { kind: "castle-interior", options: { wall: "#574c43", floor: "#3a2f27", windows: "54", glowX: 60 } },
+      background: { kind: "castle-interior", options: { ...wp("wood", "#4a2e1c", "#5a3a24", "#2e1c10"), wall: "#574c43", floor: "#3a2f27", windows: "54", glowX: 60 } },
       objects: [
-        obj("bookshelf", "Bookshelf", "bookshelf", 24, 70, 15),
+        obj("bookshelf", "Bookshelf", "bookshelf", 24, 70, 15, { interior: "castle-library-bookshelf" }),
         obj("globe", "Globe", "globe", 42, 84, 6),
         obj("clock", "Clock", "clock-grand", 78, 70, 4.5),
         obj("statue", "Statue", "statue", 88, 88, 6.5),
@@ -59,7 +73,7 @@ export const castle: EnvironmentTemplate = {
       id: "castle-armory",
       name: "Armory",
       blurb: "Steel and oak, ready for a siege.",
-      background: { kind: "castle-interior", options: { wall: "#4f4a45", floor: "#35302b", banners: "50", glowX: 66 } },
+      background: { kind: "castle-interior", options: { ...wp("chevron", "#3a3d42", "#55595f", "#8b1e2b"), wall: "#4f4a45", floor: "#35302b", banners: "50", glowX: 66 } },
       objects: [
         obj("rack", "Sword Rack", "sword-rack", 30, 70, 14.5),
         obj("helmet", "Knight's Helm", "helmet", 50, 78, 6.5),
@@ -73,12 +87,12 @@ export const castle: EnvironmentTemplate = {
       id: "castle-tower",
       name: "Tower Chamber",
       blurb: "The astronomer's room, high above the walls.",
-      background: { kind: "castle-interior", options: { wall: "#4f4a5c", floor: "#302b38", windows: "70", light: "#b08cff", glowX: 58 } },
+      background: { kind: "castle-interior", options: { ...wp("stars", "#1d1b3a", "#cfc6ff", "#ffd98a"), wall: "#4f4a5c", floor: "#302b38", windows: "70", light: "#b08cff", glowX: 58 } },
       objects: [
         obj("telescope", "Telescope", "telescope", 70, 76, 12),
         obj("orb", "Crystal Orb", "orb", 58, 85, 6.5),
         obj("bed", "Canopy Bed", "bed-canopy", 34, 72, 19),
-        obj("potions", "Potion Shelf", "potions", 13, 90, 11),
+        obj("potions", "Potion Shelf", "potions", 13, 90, 11, { interior: "castle-tower-potions" }),
         obj("hourglass", "Hourglass", "hourglass", 45, 95, 4),
         obj("chest", "Iron-bound Chest", "chest", 85, 94, 11),
       ],
@@ -87,7 +101,7 @@ export const castle: EnvironmentTemplate = {
       id: "castle-courtyard",
       name: "Courtyard",
       blurb: "Open sky within the walls.",
-      background: { kind: "castle-exterior", options: {} },
+      background: { kind: "castle-exterior", options: { ...wp("tapestry", "#2e5a3a", "#d6a84a", "#f0e2c6") } },
       objects: [
         obj("well", "Well", "well", 60, 82, 12),
         obj("tree", "Old Oak", "tree", 16, 76, 19),
@@ -101,7 +115,7 @@ export const castle: EnvironmentTemplate = {
       id: "castle-chapel",
       name: "Chapel",
       blurb: "Coloured light falls across quiet stone.",
-      background: { kind: "castle-interior", options: { wall: "#81776d", floor: "#4a4038", windows: "30,70", rug: "#5a1a26", glowX: 50, light: "#ffe2a8" } },
+      background: { kind: "castle-interior", options: { ...wp("quatrefoil", "#e7dfcf", "#7d8fb3", "#b8923a"), wall: "#81776d", floor: "#4a4038", windows: "30,70", rug: "#5a1a26", glowX: 50, light: "#ffe2a8" } },
       objects: [
         obj("altar", "Altar", "altar", 50, 72, 17),
         obj("window", "Rose Window", "window-stained", 50, 50, 6),
@@ -115,9 +129,9 @@ export const castle: EnvironmentTemplate = {
       id: "castle-treasury",
       name: "Treasury",
       blurb: "Gold glints in the lamplight.",
-      background: { kind: "castle-interior", options: { wall: "#4d4439", floor: "#30281f", banners: "30,70", glowX: 50, light: "#ffd27a" } },
+      background: { kind: "castle-interior", options: { ...wp("argyle", "#1f4a3a", "#2a6a52", "#d6a84a"), wall: "#4d4439", floor: "#30281f", banners: "30,70", glowX: 50, light: "#ffd27a" } },
       objects: [
-        obj("chest", "Treasure Chest", "chest", 24, 84, 12),
+        obj("chest", "Treasure Chest", "chest", 24, 84, 12, { interior: "castle-treasury-chest" }),
         obj("crown", "Crown", "crown", 50, 76, 7),
         obj("goblet", "Golden Goblet", "goblet", 64, 81, 3.5),
         obj("coins", "Gold Hoard", "coins", 40, 95, 14.5),

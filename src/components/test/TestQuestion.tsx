@@ -15,6 +15,7 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   section?: Section;
+  container?: WorldObject;
   object?: WorldObject;
   concept?: Concept;
   result?: TestAnswer;
@@ -23,7 +24,7 @@ interface Props {
   onContinue: () => void;
 }
 
-export function TestQuestion({ open, onOpenChange, section, object, concept, result, glow, onSubmit, onContinue }: Props) {
+export function TestQuestion({ open, onOpenChange, section, container, object, concept, result, glow, onSubmit, onContinue }: Props) {
   const [answer, setAnswer] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const continueRef = useRef<HTMLButtonElement>(null);
@@ -50,7 +51,10 @@ export function TestQuestion({ open, onOpenChange, section, object, concept, res
                   <ObjectArt visualType={object.visualType} className="max-h-full max-w-full" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{section.name}</p>
+                  <p className="truncate text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                    {section.name}
+                    {container ? ` · ${container.name}` : ""}
+                  </p>
                   <DialogPrimitive.Title className="truncate font-serif text-xl font-medium">{object.name}</DialogPrimitive.Title>
                 </div>
               </div>

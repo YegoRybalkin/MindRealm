@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ObjectArt } from "@/components/scene/ObjectArt";
 import type { TestAnswer } from "@/lib/domain/testSession";
 import type { World } from "@/lib/types";
+import { findObject } from "@/lib/domain/world";
 
 export function ReviewMistakes({
   open,
@@ -31,8 +32,7 @@ export function ReviewMistakes({
         </DialogHeader>
         <ul className="space-y-3">
           {mistakes.map((m) => {
-            const section = world.sections.find((s) => s.id === m.sectionId);
-            const object = section?.objects.find((o) => o.id === m.objectId);
+            const { section, object, container } = findObject(world, m.sectionId, m.objectId);
             const concept = world.concepts[m.conceptId];
             if (!section || !object || !concept) return null;
             return (
@@ -43,7 +43,8 @@ export function ReviewMistakes({
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-muted-foreground">
-                      {section.name} → {object.name}
+                      {section.name} → {container ? `${container.name} → ` : ""}
+                      {object.name}
                     </p>
                     <p className="font-serif text-lg font-medium text-gold">{concept.title}</p>
                     {concept.description && <p className="mt-1 text-sm leading-relaxed text-foreground/85">{concept.description}</p>}

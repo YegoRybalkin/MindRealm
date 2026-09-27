@@ -1,5 +1,5 @@
 import type { EnvironmentTemplate } from "./types";
-import { obj } from "./helpers";
+import { obj, wallpaper, wp } from "./helpers";
 
 export const house: EnvironmentTemplate = {
   id: "house",
@@ -9,12 +9,28 @@ export const house: EnvironmentTemplate = {
   theme: { ambient: "#1c1a17", glow: "#ffe2a8", cardFrom: "#d9cdb8", cardTo: "#8b7b66" },
   startingSections: 3,
   variantPrefixes: ["Upstairs", "Guest", "Second", "Back", "Downstairs"],
+  wallpaperPool: [
+    wallpaper("ogee", "#f1e6ea", "#d9a3b3", "#b86a82"),
+    wallpaper("herringbone", "#e6e0d4", "#cfc3ad", "#b8a888"),
+    wallpaper("quatrefoil", "#eef2e8", "#9fb58a", "#6f8a5a"),
+    wallpaper("waves", "#e3ecf3", "#8fb3cf", "#5a86a8"),
+    wallpaper("triangles", "#f3ead9", "#e4b48a", "#c46a4a"),
+    wallpaper("plaid", "#e9dccb", "#b9644a", "#2f4863"),
+    wallpaper("fleur", "#efe6d8", "#c9a882", "#a0845e"),
+    wallpaper("hexagon", "#eef0ee", "#b9c3bb", "#8a9a8f"),
+    wallpaper("damask", "#2b2d3a", "#3d4052", "#c9a25a"),
+    wallpaper("stars", "#1e2a44", "#d9c27a", "#eef1f4"),
+    wallpaper("argyle", "#e8e0f0", "#cdbde3", "#8a70b0"),
+    wallpaper("chevron", "#f0ebe0", "#d9c8a8", "#a88a5a"),
+    wallpaper("stripes", "#f2e8e8", "#e4c9c9", "#c98f8f"),
+    wallpaper("grid", "#f4f4f0", "#d8d8d0", "#a8a89a"),
+  ],
   sections: [
     {
       id: "house-entrance",
       name: "Entrance",
       blurb: "Coats, keys, and the front door.",
-      background: { kind: "house-interior", options: { wall: "#e7dfd2", floor: "#b88a5e" } },
+      background: { kind: "house-interior", options: { ...wp("stripes", "#e9e2d4", "#d3dccb", "#b7c7ab"), wall: "#e7dfd2", floor: "#b88a5e" } },
       objects: [
         obj("door", "Front Door", "door-modern", 50, 69, 11.5),
         obj("coatrack", "Coat Rack", "coat-rack", 30, 74, 7),
@@ -29,7 +45,7 @@ export const house: EnvironmentTemplate = {
       id: "house-living",
       name: "Living Room",
       blurb: "Soft light and a well-worn sofa.",
-      background: { kind: "house-interior", options: { wall: "#e4d9c8", floor: "#a87a52", windows: "82", accent: "#b9644a" } },
+      background: { kind: "house-interior", options: { ...wp("artdeco", "#1f4a4a", "#d9b26a", "#e8cf99"), wall: "#e4d9c8", floor: "#a87a52", windows: "82", accent: "#b9644a" } },
       objects: [
         obj("sofa", "Sofa", "sofa", 56, 71, 27),
         obj("tv", "Television", "tv", 25, 77, 17.5),
@@ -44,9 +60,9 @@ export const house: EnvironmentTemplate = {
       id: "house-kitchen",
       name: "Kitchen",
       blurb: "The warm heart of the house.",
-      background: { kind: "house-interior", options: { wall: "#dfe6e0", floor: "#d8d2c6", floorType: "tile", windows: "50" } },
+      background: { kind: "house-interior", options: { ...wp("checker", "#f4f1ea", "#dfe7ef", "#b9c9d8"), wall: "#dfe6e0", floor: "#d8d2c6", floorType: "tile", windows: "50" } },
       objects: [
-        obj("fridge", "Fridge", "fridge", 18, 70, 9.5),
+        obj("fridge", "Fridge", "fridge", 18, 70, 9.5, { interior: "house-kitchen-fridge" }),
         obj("stove", "Stove", "stove", 33, 71, 12),
         obj("kettle", "Kettle", "kettle", 36, 53, 4, { z: 72 }),
         obj("clock", "Wall Clock", "wall-clock", 70, 38, 5.5),
@@ -59,10 +75,10 @@ export const house: EnvironmentTemplate = {
       id: "house-bedroom",
       name: "Bedroom",
       blurb: "Quiet, dim, and restful.",
-      background: { kind: "house-interior", options: { wall: "#d6dbe4", floor: "#9c7454", evening: true } },
+      background: { kind: "house-interior", options: { ...wp("leaves", "#23324a", "#3f6a5a", "#d9a441"), wall: "#d6dbe4", floor: "#9c7454", evening: true } },
       objects: [
         obj("bed", "Bed", "bed", 50, 82, 27),
-        obj("wardrobe", "Wardrobe", "wardrobe", 82, 71, 13.5),
+        obj("wardrobe", "Wardrobe", "wardrobe", 82, 71, 13.5, { interior: "house-bedroom-wardrobe" }),
         obj("lamp", "Bedside Lamp", "table-lamp", 29, 75, 7),
         obj("guitar", "Guitar", "guitar", 13, 91, 6),
         obj("window", "Curtained Window", "window-curtain", 50, 53, 15),
@@ -73,11 +89,11 @@ export const house: EnvironmentTemplate = {
       id: "house-office",
       name: "Office",
       blurb: "Where the deep work happens.",
-      background: { kind: "house-interior", options: { wall: "#e3e0d6", floor: "#8e6848", windows: "80" } },
+      background: { kind: "house-interior", options: { ...wp("pinstripe", "#d8d2c4", "#a79f8f", "#c46a4a"), wall: "#e3e0d6", floor: "#8e6848", windows: "80" } },
       objects: [
         obj("computer", "Computer Desk", "computer", 44, 73, 19),
         obj("chair", "Desk Chair", "office-chair", 44, 90, 8),
-        obj("bookshelf", "Bookshelf", "bookshelf", 18, 70, 15),
+        obj("bookshelf", "Bookshelf", "bookshelf", 18, 70, 15, { interior: "house-office-bookshelf" }),
         obj("whiteboard", "Whiteboard", "whiteboard", 62, 45, 15),
         obj("globe", "Desk Globe", "globe", 72, 84, 7),
         obj("plant", "Plant", "plant", 90, 94, 9.5),
@@ -87,11 +103,11 @@ export const house: EnvironmentTemplate = {
       id: "house-garage",
       name: "Garage",
       blurb: "Oil, tools, and a trusty car.",
-      background: { kind: "garage", options: {} },
+      background: { kind: "garage", options: { ...wp("dots", "#c8b996", "#9c8b67", "#7a6a4a") } },
       objects: [
         obj("car", "Car", "car", 50, 88, 40.5),
         obj("bicycle", "Bicycle", "bicycle", 16, 78, 13.5),
-        obj("toolbox", "Toolbox", "toolbox", 80, 80, 8),
+        obj("toolbox", "Toolbox", "toolbox", 80, 80, 8, { interior: "house-garage-toolbox" }),
         obj("ladder", "Ladder", "ladder", 89, 71, 7),
         obj("tire", "Spare Tire", "tire", 23, 95, 8),
         obj("boxes", "Storage Boxes", "boxes", 74, 71, 12),
@@ -101,7 +117,7 @@ export const house: EnvironmentTemplate = {
       id: "house-bathroom",
       name: "Bathroom",
       blurb: "Clean tile and cool light.",
-      background: { kind: "house-interior", options: { wall: "#dfe9ea", floor: "#e6e2da", floorType: "tile" } },
+      background: { kind: "house-interior", options: { ...wp("scales", "#dcefee", "#9fcfd0", "#6fb0b3"), wall: "#dfe9ea", floor: "#e6e2da", floorType: "tile" } },
       objects: [
         obj("tub", "Bathtub", "bathtub", 30, 75, 24.5),
         obj("duck", "Rubber Duck", "rubber-duck", 24, 60.6, 4, { z: 76 }),

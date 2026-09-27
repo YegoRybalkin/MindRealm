@@ -19,6 +19,7 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   section: Section | undefined;
+  container?: WorldObject;
   object: WorldObject | undefined;
   concept: Concept | undefined;
   glow: string;
@@ -26,7 +27,7 @@ interface Props {
   onDelete: () => Promise<void>;
 }
 
-export function ConceptPanel({ open, onOpenChange, section, object, concept, glow, onSave, onDelete }: Props) {
+export function ConceptPanel({ open, onOpenChange, section, container, object, concept, glow, onSave, onDelete }: Props) {
   const [editing, setEditing] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -46,7 +47,10 @@ export function ConceptPanel({ open, onOpenChange, section, object, concept, glo
                   <ObjectArt visualType={object.visualType} className="max-h-full max-w-full" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{section.name}</p>
+                  <p className="truncate text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                    {section.name}
+                    {container ? ` · ${container.name}` : ""}
+                  </p>
                   <DialogPrimitive.Title className="truncate font-serif text-xl font-medium">{object.name}</DialogPrimitive.Title>
                 </div>
               </div>

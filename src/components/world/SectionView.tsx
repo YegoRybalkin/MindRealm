@@ -6,7 +6,7 @@ import { MoveHorizontal } from "lucide-react";
 import { SceneBackdrop } from "@/components/scene/SceneBackdrop";
 import { paintOrder } from "@/lib/domain/sections";
 import type { Section, World, WorldObject } from "@/lib/types";
-import { InteractiveObject, type ObjectTestState } from "./InteractiveObject";
+import { InteractiveObject, type ContainerInfo, type ObjectTestState } from "./InteractiveObject";
 
 const AR = 16 / 9;
 
@@ -21,6 +21,9 @@ interface Props {
   selectedObjectId?: string | null;
   highlightedObjectId?: string | null;
   getTestState?: (objectId: string) => ObjectTestState;
+  getContainerInfo?: (object: WorldObject) => ContainerInfo | undefined;
+  /** "zoom" when stepping into / out of a container, "slide" between sections. */
+  transition?: "slide" | "zoom";
   onSelectObject: (object: WorldObject) => void;
   /** Overlay rendered in scene-space (e.g. navigation doorways). */
   overlay?: ReactNode;
@@ -51,7 +54,7 @@ function useStageSize(ref: React.RefObject<HTMLDivElement | null>) {
   return size;
 }
 
-export function SectionView({ world, section, direction, mode, glow, ambient, showLabels, selectedObjectId, highlightedObjectId, getTestState, onSelectObject, overlay }: Props) {
+export function SectionView({ world, section, direction, mode, glow, ambient, showLabels, selectedObjectId, highlightedObjectId, getTestState, getContainerInfo, transition = "slide", onSelectObject, overlay }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const size = useStageSize(containerRef);
@@ -89,11 +92,19 @@ export function SectionView({ world, section, direction, mode, glow, ambient, sh
               <motion.div
                 key={section.id}
                 custom={direction}
-                variants={{
-                  enter: (d: number) => ({ opacity: 0, x: `${d * 4}%`, scale: 1.02 }),
-                  center: { opacity: 1, x: 0, scale: 1 },
-                  exit: (d: number) => ({ opacity: 0, x: `${d * -4}%`, scale: 0.99 }),
-                }}
+                variants={
+                  transition === "zoom"
+                    ? {
+                        enter: (d: number) => ({ opacity: 0, x: 0, scale: d > 0 ? 0.82 : 1.18, filter: "blur(6px)" }),
+                        center: { opacity: 1, x: 0, scale: 1, filter: "blur(0px)" },
+                        exit: (d: number) => ({ opacity: 0, x: 0, scale: d > 0 ? 1.25 : 0.85, filter: "blur(6px)" }),
+                      }
+                    : {
+                        enter: (d: number) => ({ opacity: 0, x: `${d * 4}%`, scale: 1.02 }),
+                        center: { opacity: 1, x: 0, scale: 1 },
+                        exit: (d: number) => ({ opacity: 0, x: `${d * -4}%`, scale: 0.99 }),
+                      }
+                }
                 initial="enter"
                 animate="center"
                 exit="exit"
@@ -117,6 +128,7 @@ export function SectionView({ world, section, direction, mode, glow, ambient, sh
                       selected={selectedObjectId === o.id}
                       glow={glow}
                       zIndex={i + 1}
+                      container={getContainerInfo?.(o)}
                       onSelect={onSelectObject}
                     />
                   ))}

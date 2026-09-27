@@ -1,10 +1,11 @@
 import { findSectionTemplate } from "@/environments";
+import { CURRENT_SCHEMA } from "@/lib/domain/migrate";
 import { instantiateSection } from "@/lib/domain/sections";
 import { computeMastery } from "@/lib/domain/mastery";
 import { createId } from "@/lib/id";
 import type { Concept, Section, World } from "@/lib/types";
 
-type DemoConcept = { object: string; title: string; description: string; example?: string; correct: number; total: number };
+type DemoConcept = { object: string; inside?: string; title: string; description: string; example?: string; correct: number; total: number };
 
 const GREAT_HALL: DemoConcept[] = [
   {
@@ -74,6 +75,24 @@ const LIBRARY: DemoConcept[] = [
     correct: 0,
     total: 0,
   },
+  {
+    object: "bookshelf",
+    inside: "tome",
+    title: "Anomie",
+    description: "A condition of normlessness in which social rules break down and people lose a sense of direction.",
+    example: "Durkheim linked rising suicide rates to anomie during rapid economic change.",
+    correct: 0,
+    total: 0,
+  },
+  {
+    object: "bookshelf",
+    inside: "scroll",
+    title: "Bureaucracy",
+    description: "A formal organisation with a hierarchy of offices, written rules and impersonal procedures.",
+    example: "Weber saw bureaucracy as efficient but warned of an 'iron cage' of rationality.",
+    correct: 0,
+    total: 0,
+  },
 ];
 
 function build(templateId: string, order: number, items: DemoConcept[], concepts: Record<string, Concept>, reviewedAt: string): Section {
@@ -81,9 +100,8 @@ function build(templateId: string, order: number, items: DemoConcept[], concepts
   if (!template) throw new Error(`Missing template ${templateId}`);
   const section = instantiateSection(template, order);
   items.forEach((item) => {
-    const tpl = template.objects.find((o) => o.key === item.object);
-    const idx = tpl ? template.objects.indexOf(tpl) : -1;
-    const object = section.objects[idx];
+    const host = section.objects.find((o) => o.templateKey === item.object);
+    const object = item.inside ? host?.contents?.objects.find((o) => o.templateKey === item.inside) : host;
     if (!object) return;
     const id = createId("cpt");
     concepts[id] = {
@@ -118,6 +136,7 @@ export function createDemoWorld(): World {
     updatedAt: reviewed,
     lastStudiedAt: reviewed,
     isDemo: true,
+    schemaVersion: CURRENT_SCHEMA,
     sections,
     concepts,
   };

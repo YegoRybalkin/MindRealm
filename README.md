@@ -24,6 +24,8 @@ It needs no backend and no API keys. Data lives in the browser's `localStorage` 
 
 - **Dashboard.** Shows your worlds as cards (concept count, sections, last studied, mastery) plus four stats: concepts learned, recall accuracy, number of worlds and study streak.
 - **Create world.** Pick one of four illustrated environments, then give it a name, and optionally a subject and a description.
+- **Unique rooms.** Every room has its own wallpaper, a garden area's boundary counts as its wallpaper (picket fence, bamboo, brick with ivy and so on), and no two rooms in a world share one. Newly generated rooms always get a wall treatment that isn't used yet.
+- **Openable containers.** Wardrobes, bookshelves, chests, the fridge, toolbox, potting tray, locker and medkit open into a close-up scene of smaller objects, and each smaller object can hold its own concept. The container itself can hold one too. Test mode, search, bulk add and the world map all include what's inside.
 - **World view.** A full-screen scene in which each object can be clicked. You move between sections with the ← → edge arrows, the arrow keys or the section dots. On portrait phones the scene pans sideways instead of shrinking, so the layout stays the same.
 - **Concepts.** Each concept has a title, a description, an optional example and optional notes. Click an object to add, view, edit or delete its concept. Deleting asks for confirmation, and every change saves automatically.
 - **Generate Section.** Adds the next section for the environment from its template pool. When the pool runs out, it creates mirrored and re-toned variants ("Module B Airlock"), so a world can keep growing.
@@ -60,7 +62,10 @@ src/
 
 1. Create `src/environments/<name>.ts` exporting an `EnvironmentTemplate`. It lists sections, and each section has a backdrop spec and objects with `x`, `y` and `size` given as percentages of the scene.
 2. Register it in `src/environments/index.ts`.
-3. If it needs new visuals, add object illustrations to `src/components/scene/art/` and, optionally, a backdrop renderer in `src/components/scene/backdrops.tsx`.
+3. To make an object openable, give it `interior: "<key>"` and define that close-up in `src/environments/interiors.ts`. Give each section a wallpaper with `...wp(pattern, a, b, c)` in its backdrop options, and list spare wallpapers in `wallpaperPool` for generated rooms.
+4. If it needs new visuals, add object illustrations to `src/components/scene/art/` and, optionally, a backdrop renderer in `src/components/scene/backdrops.tsx`.
+
+Worlds saved by older versions are upgraded when they load (`src/lib/domain/migrate.ts`): they gain wallpapers and container contents, and no existing object or concept moves.
 
 A section stores a copy of its object positions when it is created. Editing a template later therefore never moves the objects in existing worlds, and each concept stays on the same object in the same place.
 

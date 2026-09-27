@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { BackdropSpec } from "@/lib/types";
 import { shade } from "@/lib/color";
+import { WallpaperDef } from "./wallpapers";
 
 /**
  * Scene backdrops are drawn as SVG in a fixed 1600×900 coordinate space.
@@ -123,6 +124,48 @@ function LightPool({ u, k, cx, cy, rx, ry, color, opacity }: { u: string; k: str
   );
 }
 
+
+/** Patterned wallpaper on the back wall (from the top down to yEnd) and matching side-wall strips. */
+function Wallpaper({ u, o, yEnd = BW.y1, sideShade = 0.38, scale = 1 }: { u: string; o: Opts; yEnd?: number; sideShade?: number; scale?: number }) {
+  const wp = str(o, "wp", "");
+  if (!wp) return null;
+  const a = str(o, "wpA", "#555");
+  const b = str(o, "wpB", "#777");
+  const c = str(o, "wpC", b);
+  const yf = Math.round(((yEnd - BW.y0) / (BW.y1 - BW.y0)) * SCENE_H);
+  const left = `0,0 ${BW.x0},${BW.y0} ${BW.x0},${yEnd} 0,${yf}`;
+  const right = `${SCENE_W},0 ${BW.x1},${BW.y0} ${BW.x1},${yEnd} ${SCENE_W},${yf}`;
+  return (
+    <g>
+      <defs>
+        <WallpaperDef id={`${u}-wp`} pattern={wp} a={a} b={b} c={c} scale={scale} />
+        <WallpaperDef id={`${u}-wps`} pattern={wp} a={a} b={b} c={c} scale={scale * 1.35} />
+        <Grad id={`${u}-wpshade`} stops={[[0, "#000", 0.35], [35, "#000", 0.05], [100, "#000", 0.12]]} />
+      </defs>
+      <rect x={BW.x0} y={BW.y0} width={BW.x1 - BW.x0} height={yEnd - BW.y0} fill={`url(#${u}-wp)`} />
+      <rect x={BW.x0} y={BW.y0} width={BW.x1 - BW.x0} height={yEnd - BW.y0} fill={`url(#${u}-wpshade)`} />
+      <polygon points={left} fill={`url(#${u}-wps)`} />
+      <polygon points={right} fill={`url(#${u}-wps)`} />
+      <polygon points={left} fill="#000" opacity={sideShade} />
+      <polygon points={right} fill="#000" opacity={sideShade} />
+    </g>
+  );
+}
+
+/** Horizontal rail (dado / picture rail) across back and side walls at back-wall height y. */
+function WallRail({ y, color, h = 10 }: { y: number; color: string; h?: number }) {
+  const yf = Math.round(((y - BW.y0) / (BW.y1 - BW.y0)) * SCENE_H);
+  const yf2 = Math.round(((y + h - BW.y0) / (BW.y1 - BW.y0)) * SCENE_H);
+  return (
+    <g>
+      <rect x={BW.x0} y={y} width={BW.x1 - BW.x0} height={h} fill={color} />
+      <rect x={BW.x0} y={y + h} width={BW.x1 - BW.x0} height={3} fill="#000" opacity={0.25} />
+      <polygon points={`0,${yf} ${BW.x0},${y} ${BW.x0},${y + h} 0,${yf2}`} fill={shade(color, -0.3)} />
+      <polygon points={`${SCENE_W},${yf} ${BW.x1},${y} ${BW.x1},${y + h} ${SCENE_W},${yf2}`} fill={shade(color, -0.3)} />
+    </g>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* Castle                                                              */
 /* ------------------------------------------------------------------ */
@@ -147,6 +190,8 @@ const castleInterior: BackdropRenderer = (u, o) => {
       <rect x={BW.x0} y={BW.y0} width={BW.x1 - BW.x0} height={BW.y1 - BW.y0} fill={`url(#${u}-stone)`} />
       <polygon points={`0,0 ${BW.x0},${BW.y0} ${BW.x0},${BW.y1} 0,${SCENE_H}`} fill={`url(#${u}-stone)`} opacity={0.5} />
       <polygon points={`${SCENE_W},0 ${BW.x1},${BW.y0} ${BW.x1},${BW.y1} ${SCENE_W},${SCENE_H}`} fill={`url(#${u}-stone)`} opacity={0.5} />
+      <Wallpaper u={u} o={o} yEnd={440} sideShade={0.45} />
+      {o.wp && <WallRail y={440} color={str(o, "rail", "#8a6428")} h={12} />}
       {/* ceiling beams */}
       <g fill="#000" opacity={0.35}>
         {[0.2, 0.4, 0.6, 0.8].map((t) => {
@@ -239,6 +284,21 @@ const castleExterior: BackdropRenderer = (u, o) => {
         </pattern>
       </defs>
       <rect x="0" y="296" width={SCENE_W} height="304" fill={`url(#${u}-stone)`} />
+      {o.wp && (
+        <g>
+          <defs>
+            <WallpaperDef id={`${u}-wp`} pattern={str(o, "wp", "fleur")} a={str(o, "wpA", "#7b1f2a")} b={str(o, "wpB", "#d6a84a")} c={str(o, "wpC", "#d6a84a")} scale={0.7} />
+          </defs>
+          {[400, 560, 1040, 1200].map((x) => (
+            <g key={x}>
+              <rect x={x - 58} y={344} width={116} height={8} rx={4} fill="#6b4a2b" />
+              <path d={`M${x - 50} 352h100v190l-50-30-50 30z`} fill={`url(#${u}-wp)`} />
+              <path d={`M${x - 50} 352h100v190l-50-30-50 30z`} fill="none" stroke={str(o, "wpB", "#d6a84a")} strokeWidth={4} />
+              <path d={`M${x} 352h50v190l-50-30z`} fill="#000" opacity={0.15} />
+            </g>
+          ))}
+        </g>
+      )}
       <path d="M700 600V470a100 100 0 0 1 200 0V600z" fill="#241e1a" />
       <g stroke="#3a322c" strokeWidth={6}>
         {[730, 770, 810, 850].map((x) => (
@@ -281,6 +341,8 @@ const houseInterior: BackdropRenderer = (u, o) => {
     <g>
       <RoomShell u={u} wall={wall} wallDark={shade(wall, -0.06)} side={shade(wall, -0.16)} ceiling={shade(wall, 0.04)} floor={floor} floorDark={shade(floor, -0.22)} />
       {accentWall && <rect x={BW.x0 + (BW.x1 - BW.x0) * 0.3} y={BW.y0} width={(BW.x1 - BW.x0) * 0.4} height={BW.y1 - BW.y0} fill={accentWall} />}
+      <Wallpaper u={u} o={o} yEnd={BW.y1 - 22} sideShade={0.16} />
+      {typeof o.rail === "string" && <WallRail y={430} color={o.rail} h={10} />}
       {/* crown molding + baseboard */}
       <rect x={BW.x0} y={BW.y0} width={BW.x1 - BW.x0} height={10} fill={shade(wall, 0.06)} />
       <rect x={BW.x0} y={BW.y1 - 22} width={BW.x1 - BW.x0} height={22} fill={shade(wall, 0.08)} />
@@ -324,9 +386,10 @@ const houseInterior: BackdropRenderer = (u, o) => {
   );
 };
 
-const garage: BackdropRenderer = (u) => (
+const garage: BackdropRenderer = (u, o) => (
   <g>
     <RoomShell u={u} wall="#b9b4ab" wallDark="#a29d94" side="#8c877f" ceiling="#9c978e" floor="#8e8c88" floorDark="#6f6d69" />
+    <Wallpaper u={u} o={o} sideShade={0.25} />
     <g stroke="#000" strokeOpacity={0.08} strokeWidth={2}>
       {Array.from({ length: 16 }).map((_, i) => (
         <line key={i} x1={BW.x0} x2={BW.x1} y1={BW.y0 + 34 * (i + 1)} y2={BW.y0 + 34 * (i + 1)} />
@@ -392,11 +455,10 @@ const garden: BackdropRenderer = (u, o) => {
         </g>
       )}
       <rect x="0" y="560" width={SCENE_W} height="340" fill={`url(#${u}-lawn)`} />
-      {hedge && (
-        <g>
-          <rect x="0" y="540" width={SCENE_W} height="54" rx="20" fill={p.hedge} />
-          <rect x="0" y="540" width={SCENE_W} height="14" rx="7" fill="#fff" opacity={0.06} />
-        </g>
+      {str(o, "wp", "") ? (
+        <GardenBoundary kind={str(o, "wp", "hedge")} a={str(o, "wpA", p.hedge)} b={str(o, "wpB", "#fff")} c={str(o, "wpC", "#e7a6b8")} />
+      ) : (
+        hedge && <GardenBoundary kind="hedge" a={p.hedge} b="#fff" c="#fff" />
       )}
       {path === "gravel" && <polygon points="730,594 870,594 1120,900 480,900" fill="#d9ceb5" opacity={0.9} />}
       {path === "stone" && (
@@ -435,6 +497,155 @@ const garden: BackdropRenderer = (u, o) => {
     </g>
   );
 };
+
+
+/** Garden "wallpaper": a distinct boundary along the back of each garden area. */
+function GardenBoundary({ kind, a, b, c }: { kind: string; a: string; b: string; c: string }) {
+  const W = SCENE_W;
+  const n = (step: number) => Array.from({ length: Math.ceil(W / step) + 1 }, (_, i) => i * step);
+  switch (kind) {
+    case "picket":
+      return (
+        <g>
+          <rect x="0" y="548" width={W} height="10" fill={b} />
+          <rect x="0" y="574" width={W} height="10" fill={b} />
+          {n(34).map((x) => (
+            <path key={x} d={`M${x} 600V522l10-14 10 14v78z`} fill={a} />
+          ))}
+          <rect x="0" y="590" width={W} height="10" fill="#000" opacity={0.08} />
+        </g>
+      );
+    case "brick":
+      return (
+        <g>
+          <rect x="0" y="486" width={W} height="112" fill={a} />
+          {Array.from({ length: 7 }, (_, r) => (
+            <g key={r}>
+              <line x1="0" x2={W} y1={486 + r * 16} y2={486 + r * 16} stroke={b} strokeWidth={2} />
+              {n(48).map((x) => (
+                <line key={x} x1={x + (r % 2) * 24} x2={x + (r % 2) * 24} y1={486 + r * 16} y2={502 + r * 16} stroke={b} strokeWidth={2} />
+              ))}
+            </g>
+          ))}
+          <rect x="0" y="478" width={W} height="10" fill={shade(a, -0.25)} />
+          {n(210).map((x, i) => (
+            <g key={x} fill={c}>
+              <ellipse cx={x + 40} cy={492} rx={46} ry={16} />
+              <ellipse cx={x + 22} cy={516 + (i % 3) * 10} rx={16} ry={26} />
+              <ellipse cx={x + 70} cy={506} rx={20} ry={14} opacity={0.8} />
+            </g>
+          ))}
+        </g>
+      );
+    case "balustrade":
+      return (
+        <g>
+          <rect x="0" y="512" width={W} height="14" fill={a} />
+          <rect x="0" y="526" width={W} height="4" fill={b} opacity={0.5} />
+          {n(36).map((x) => (
+            <path key={x} d={`M${x + 8} 530c-8 12 8 20 0 34 4 10 6 18 0 26h20c-6-8-4-16 0-26-8-14 8-22 0-34z`} fill={a} />
+          ))}
+          <rect x="0" y="588" width={W} height="10" fill={shade(a, -0.15)} />
+          {n(360).map((x) => (
+            <g key={x}>
+              <rect x={x} y="500" width="30" height="98" fill={shade(a, -0.08)} />
+              <ellipse cx={x + 15} cy={496} rx={14} ry={9} fill={c} />
+            </g>
+          ))}
+        </g>
+      );
+    case "bamboo":
+      return (
+        <g>
+          {n(17).map((x, i) => (
+            <g key={x}>
+              <rect x={x} y={440 + (i % 5) * 8} width="14" height={160 - (i % 5) * 8} rx="3" fill={i % 3 ? a : shade(a, -0.15)} />
+              <rect x={x} y={500 + (i % 4) * 6} width="14" height="3" fill={b} />
+              <rect x={x} y={548 - (i % 3) * 5} width="14" height="3" fill={b} />
+            </g>
+          ))}
+          <rect x="0" y="520" width={W} height="4" fill={c} />
+          <rect x="0" y="566" width={W} height="4" fill={c} />
+        </g>
+      );
+    case "trellis":
+      return (
+        <g>
+          <rect x="0" y="470" width={W} height="126" fill={shade(a, -0.1)} />
+          <g stroke={b} strokeWidth={4} opacity={0.9}>
+            {n(60).map((x) => (
+              <g key={x}>
+                <line x1={x} y1={470} x2={x + 126} y2={596} />
+                <line x1={x} y1={470} x2={x - 126} y2={596} />
+              </g>
+            ))}
+          </g>
+          <rect x="0" y="464" width={W} height="8" fill={b} />
+          {n(46).map((x, i) => (
+            <circle key={x} cx={x + 12} cy={486 + ((i * 37) % 96)} r={6} fill={c} />
+          ))}
+        </g>
+      );
+    case "stonewall":
+      return (
+        <g>
+          <rect x="0" y="500" width={W} height="98" fill={shade(a, -0.2)} />
+          {Array.from({ length: 4 }, (_, r) =>
+            n(56).map((x) => (
+              <ellipse key={`${r}-${x}`} cx={x + (r % 2) * 28} cy={512 + r * 24} rx={27} ry={12} fill={(x / 56 + r) % 3 ? a : b} />
+            )),
+          )}
+          <path d={`M0 500h${W}`} stroke={c} strokeWidth={10} />
+        </g>
+      );
+    case "lavender":
+      return (
+        <g>
+          {n(64).map((x, i) => (
+            <g key={x}>
+              <ellipse cx={x + 32} cy={584} rx={42} ry={22} fill={a} />
+              <ellipse cx={x + 32} cy={560 - (i % 2) * 6} rx={34} ry={20} fill={c} />
+              <ellipse cx={x + 24} cy={552 - (i % 2) * 6} rx={10} ry={6} fill={b} opacity={0.6} />
+            </g>
+          ))}
+        </g>
+      );
+    case "topiaryrow":
+      return (
+        <g>
+          <rect x="0" y="560" width={W} height="36" rx="14" fill={a} />
+          {n(150).map((x) => (
+            <g key={x}>
+              <rect x={x + 71} y={490} width="8" height="72" fill="#5a3d28" />
+              <circle cx={x + 75} cy={496} r={32} fill={a} />
+              <circle cx={x + 66} cy={486} r={10} fill={b} opacity={0.25} />
+              <circle cx={x + 75} cy={462} r={6} fill={c} />
+            </g>
+          ))}
+        </g>
+      );
+    case "maze":
+      return (
+        <g>
+          <rect x="0" y="470" width={W} height="126" fill={a} />
+          {[260, 800, 1340].map((x) => (
+            <path key={x} d={`M${x - 46} 596V526a46 46 0 0 1 92 0V596z`} fill={shade(a, -0.45)} />
+          ))}
+          <rect x="0" y="470" width={W} height="16" fill={b} opacity={0.12} />
+          {n(90).map((x, i) => (
+            <circle key={x} cx={x + 20} cy={482 + (i % 3) * 30} r={4} fill={c} />
+          ))}
+        </g>
+      );
+    default:
+      return (
+        <g>
+          <rect x="0" y="540" width={W} height="54" rx="20" fill={a} />
+          <rect x="0" y="540" width={W} height="14" rx="7" fill={b} opacity={0.08} />
+        </g>
+      );
+  }
+}
 
 const greenhouse: BackdropRenderer = (u, o) => {
   const base = garden(u + "g", { ...o, hedge: false, trees: true, path: "stone" });
@@ -483,6 +694,7 @@ const station: BackdropRenderer = (u, o) => {
   return (
     <g>
       <RoomShell u={u} wall={wall} wallDark={shade(wall, -0.3)} side={shade(wall, -0.4)} ceiling={shade(wall, -0.55)} floor={shade(wall, -0.2)} floorDark={shade(wall, -0.5)} />
+      <Wallpaper u={u} o={o} sideShade={0.45} />
       {/* wall panels */}
       <g fill="#fff" opacity={0.04}>
         {Array.from({ length: 8 }).map((_, i) =>
@@ -530,6 +742,163 @@ const station: BackdropRenderer = (u, o) => {
   );
 };
 
+
+/* ------------------------------------------------------------------ */
+/* Close-up interiors (inside containers)                              */
+/* ------------------------------------------------------------------ */
+
+/** Shelving close-up: bookshelves, potion cabinets, fridges, lockers. */
+const interiorShelf: BackdropRenderer = (u, o) => {
+  const style = str(o, "style", "wood");
+  const wood = str(o, "wood", style === "metal" ? "#8e98a6" : style === "fridge" ? "#f3f5f7" : "#5e3c27");
+  const back = str(o, "back", style === "fridge" ? "#e8eef2" : "#2a1a10");
+  const glow = str(o, "glow", "");
+  const shelves = list(o, "shelves").length ? list(o, "shelves") : [300, 560, 820];
+  const wp = str(o, "wp", "");
+  return (
+    <g>
+      <defs>
+        {wp && <WallpaperDef id={`${u}-wp`} pattern={wp} a={str(o, "wpA", back)} b={str(o, "wpB", back)} c={str(o, "wpC", back)} scale={1.4} />}
+        <Grad id={`${u}-under`} stops={[[0, "#000", 0.45], [100, "#000", 0]]} />
+        <Grad id={`${u}-side`} x2={1} y2={0} stops={[[0, shade(wood, -0.25)], [100, wood]]} />
+      </defs>
+      <rect width={SCENE_W} height={SCENE_H} fill={back} />
+      {wp && <rect width={SCENE_W} height={SCENE_H} fill={`url(#${u}-wp)`} opacity={0.85} />}
+      {style === "fridge" && <LightPool u={u} k="cold" cx={800} cy={40} rx={800} ry={260} color="#dff4ff" opacity={0.9} />}
+      {glow && <LightPool u={u} k="glow" cx={800} cy={420} rx={760} ry={420} color={glow} opacity={0.28} />}
+      {shelves.map((y, i) => (
+        <g key={i}>
+          <rect x="0" y={y + 22} width={SCENE_W} height="70" fill={`url(#${u}-under)`} />
+          {style === "fridge" ? (
+            <g>
+              <rect x="80" y={y} width={SCENE_W - 160} height="16" fill="#cfe9f5" opacity={0.55} />
+              <rect x="80" y={y} width={SCENE_W - 160} height="4" fill="#fff" opacity={0.9} />
+            </g>
+          ) : (
+            <g>
+              <rect x="0" y={y} width={SCENE_W} height="24" fill={wood} />
+              <rect x="0" y={y} width={SCENE_W} height="5" fill={shade(wood, 0.18)} />
+              {style === "metal" && Array.from({ length: 30 }, (_, k) => <circle key={k} cx={40 + k * 52} cy={y + 14} r={4} fill={shade(wood, -0.4)} />)}
+            </g>
+          )}
+        </g>
+      ))}
+      {style === "metal" && (
+        <g>
+          <rect x="120" y="58" width={SCENE_W - 240} height="8" rx="4" fill={shade(wood, 0.1)} />
+          {[360, 800, 1240].map((x) => (
+            <path key={x} d={`M${x} 66v26a14 14 0 0 1-14 14`} stroke={shade(wood, 0.15)} strokeWidth={6} fill="none" />
+          ))}
+          {Array.from({ length: 9 }, (_, k) => (
+            <rect key={k} x={620 + k * 40} y="20" width="22" height="6" rx="3" fill={shade(back, 0.2)} />
+          ))}
+        </g>
+      )}
+      <rect x="0" y="0" width="90" height={SCENE_H} fill={`url(#${u}-side)`} />
+      <rect x={SCENE_W - 90} y="0" width="90" height={SCENE_H} fill={shade(wood, -0.2)} />
+      <rect x="0" y="0" width={SCENE_W} height="40" fill={shade(wood, -0.1)} />
+      <Vignette u={u} strength={style === "fridge" ? 0.25 : 0.55} />
+    </g>
+  );
+};
+
+/** Open wardrobe: lined back, hanging rail, hat shelf and shoe shelf. */
+const interiorWardrobe: BackdropRenderer = (u, o) => {
+  const wood = str(o, "wood", "#c89b6d");
+  const back = str(o, "back", "#e9dfd0");
+  const wp = str(o, "wp", "");
+  return (
+    <g>
+      <defs>
+        {wp && <WallpaperDef id={`${u}-wp`} pattern={wp} a={str(o, "wpA", back)} b={str(o, "wpB", back)} c={str(o, "wpC", back)} scale={1.2} />}
+        <Grad id={`${u}-under`} stops={[[0, "#000", 0.4], [100, "#000", 0]]} />
+      </defs>
+      <rect width={SCENE_W} height={SCENE_H} fill={back} />
+      {wp && <rect x="140" y="0" width={SCENE_W - 280} height={SCENE_H} fill={`url(#${u}-wp)`} />}
+      <LightPool u={u} k="lamp" cx={800} cy={60} rx={700} ry={300} color="#fff6dc" opacity={0.45} />
+      {/* hat shelf */}
+      <rect x="140" y="150" width={SCENE_W - 280} height="60" fill={`url(#${u}-under)`} />
+      <rect x="140" y="130" width={SCENE_W - 280} height="22" fill={wood} />
+      <rect x="140" y="130" width={SCENE_W - 280} height="5" fill={shade(wood, 0.2)} />
+      {/* rail */}
+      <rect x="140" y="198" width={SCENE_W - 280} height="12" rx="6" fill="#c9a25a" />
+      <rect x="140" y="198" width={SCENE_W - 280} height="4" rx="2" fill="#f0d99a" />
+      {/* shoe shelf */}
+      <rect x="140" y="838" width={SCENE_W - 280} height="62" fill={shade(wood, -0.25)} />
+      <rect x="140" y="826" width={SCENE_W - 280} height="16" fill={wood} />
+      {/* frame + open doors */}
+      <rect x="110" y="0" width="34" height={SCENE_H} fill={shade(wood, -0.15)} />
+      <rect x={SCENE_W - 144} y="0" width="34" height={SCENE_H} fill={shade(wood, -0.15)} />
+      <polygon points={`0,0 110,40 110,${SCENE_H - 40} 0,${SCENE_H}`} fill={shade(wood, -0.05)} />
+      <polygon points={`${SCENE_W},0 ${SCENE_W - 110},40 ${SCENE_W - 110},${SCENE_H - 40} ${SCENE_W},${SCENE_H}`} fill={shade(wood, -0.05)} />
+      <rect x="40" y="380" width="10" height="120" rx="5" fill="#2f3237" />
+      <rect x={SCENE_W - 50} y="380" width="10" height="120" rx="5" fill="#2f3237" />
+      <rect x="0" y="0" width={SCENE_W} height="34" fill={shade(wood, -0.2)} />
+      <Vignette u={u} strength={0.35} />
+    </g>
+  );
+};
+
+/** Looking down into an open case: chests, toolboxes, medkits. */
+const interiorCase: BackdropRenderer = (u, o) => {
+  const shell = str(o, "shell", "#6b4428");
+  const lining = str(o, "lining", "#6d1a26");
+  const table = str(o, "table", "#2a211b");
+  const trim = str(o, "trim", "#c9a25a");
+  return (
+    <g>
+      <defs>
+        <pattern id={`${u}-quilt`} width="80" height="80" patternUnits="userSpaceOnUse">
+          <rect width="80" height="80" fill={lining} />
+          <path d="M0 40L40 0 80 40 40 80z" fill="none" stroke="#000" strokeOpacity={0.18} strokeWidth={2} />
+          <circle cx="40" cy="0" r="3" fill="#000" opacity={0.2} />
+          <circle cx="0" cy="40" r="3" fill="#000" opacity={0.2} />
+        </pattern>
+        <Grad id={`${u}-lid`} stops={[[0, shade(lining, -0.4)], [100, lining]]} />
+      </defs>
+      <rect width={SCENE_W} height={SCENE_H} fill={table} />
+      {/* raised lid */}
+      <polygon points="150,190 1450,190 1380,20 220,20" fill={shade(shell, -0.1)} />
+      <polygon points="190,180 1410,180 1350,44 250,44" fill={`url(#${u}-lid)`} />
+      {/* box */}
+      <rect x="90" y="180" width={SCENE_W - 180} height="690" rx="26" fill={shell} />
+      <rect x="130" y="216" width={SCENE_W - 260} height="622" rx="14" fill={`url(#${u}-quilt)`} />
+      <rect x="130" y="216" width={SCENE_W - 260} height="40" fill="#000" opacity={0.22} />
+      <rect x="130" y="216" width="40" height="622" fill="#000" opacity={0.12} />
+      <rect x="90" y="180" width={SCENE_W - 180} height="690" rx="26" fill="none" stroke={trim} strokeWidth={8} />
+      <LightPool u={u} k="shine" cx={800} cy={520} rx={700} ry={360} color="#fff2d0" opacity={0.18} />
+      <Vignette u={u} strength={0.45} />
+    </g>
+  );
+};
+
+/** Potting bench: pegboard wall above a wooden work surface. */
+const interiorBench: BackdropRenderer = (u, o) => {
+  const board = str(o, "board", "#c8b996");
+  const wood = str(o, "wood", "#9c7148");
+  return (
+    <g>
+      <defs>
+        <pattern id={`${u}-peg`} width="40" height="40" patternUnits="userSpaceOnUse">
+          <rect width="40" height="40" fill={board} />
+          <circle cx="20" cy="20" r="4" fill={shade(board, -0.4)} />
+        </pattern>
+        <Grad id={`${u}-top`} stops={[[0, shade(wood, -0.2)], [100, wood]]} />
+      </defs>
+      <rect width={SCENE_W} height="440" fill={`url(#${u}-peg)`} />
+      <LightPool u={u} k="win" cx={1250} cy={120} rx={500} ry={260} color="#fff6d6" opacity={0.5} />
+      <rect x="0" y="420" width={SCENE_W} height="30" fill={shade(wood, -0.3)} />
+      <polygon points={`0,450 ${SCENE_W},450 ${SCENE_W},${SCENE_H} 0,${SCENE_H}`} fill={`url(#${u}-top)`} />
+      <g stroke={shade(wood, -0.3)} strokeWidth={3} opacity={0.6}>
+        {[560, 690, 830].map((y) => (
+          <line key={y} x1="0" y1={y} x2={SCENE_W} y2={y} />
+        ))}
+      </g>
+      <Vignette u={u} strength={0.4} />
+    </g>
+  );
+};
+
 /* ------------------------------------------------------------------ */
 
 export const BACKDROPS: Record<string, BackdropRenderer> = {
@@ -540,6 +909,10 @@ export const BACKDROPS: Record<string, BackdropRenderer> = {
   garden,
   greenhouse,
   station,
+  "interior-shelf": interiorShelf,
+  "interior-wardrobe": interiorWardrobe,
+  "interior-case": interiorCase,
+  "interior-bench": interiorBench,
 };
 
 export function renderBackdrop(spec: BackdropSpec, u: string): ReactNode {

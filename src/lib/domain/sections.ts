@@ -1,5 +1,6 @@
-import type { SectionTemplate } from "@/environments";
-import type { BackdropSpec, Section, WorldObject } from "@/lib/types";
+import type { ObjectTemplate, SectionTemplate } from "@/environments";
+import { getInterior } from "@/environments/interiors";
+import type { BackdropSpec, ObjectInterior, Section, WorldObject } from "@/lib/types";
 import { createId } from "@/lib/id";
 import { isHex, shade } from "@/lib/color";
 
@@ -17,16 +18,7 @@ export interface SectionVariant {
  * so the layout never changes after concepts are attached.
  */
 export function instantiateSection(template: SectionTemplate, order: number, variant: SectionVariant = {}): Section {
-  const objects: WorldObject[] = template.objects.map((o) => ({
-    id: createId("obj"),
-    name: o.name,
-    visualType: o.visualType,
-    position: { x: variant.mirror ? Math.round((100 - o.x) * 10) / 10 : o.x, y: o.y },
-    size: o.size,
-    flip: variant.mirror ? !o.flip : o.flip,
-    z: o.z,
-    conceptId: null,
-  }));
+  const objects = template.objects.map((o) => instantiateObject(o, !!variant.mirror));
   return {
     id: createId("sec"),
     name: variant.prefix ? `${variant.prefix} ${template.name}` : template.name,
@@ -37,11 +29,42 @@ export function instantiateSection(template: SectionTemplate, order: number, var
   };
 }
 
+export function instantiateObject(o: ObjectTemplate, mirror = false): WorldObject {
+  const object: WorldObject = {
+    id: createId("obj"),
+    name: o.name,
+    visualType: o.visualType,
+    position: { x: mirror ? Math.round((100 - o.x) * 10) / 10 : o.x, y: o.y },
+    size: o.size,
+    flip: mirror ? !o.flip : o.flip,
+    z: o.z,
+    conceptId: null,
+    templateKey: o.key,
+  };
+  if (o.interior) {
+    const contents = instantiateInterior(o.interior);
+    if (contents) object.contents = contents;
+  }
+  return object;
+}
+
+/** Build the close-up contents of a container from its interior template. */
+export function instantiateInterior(key: string): ObjectInterior | undefined {
+  const t = getInterior(key);
+  if (!t) return undefined;
+  return {
+    title: t.title,
+    background: { ...t.background, options: { ...t.background.options } },
+    objects: t.objects.map((o) => instantiateObject(o)),
+  };
+}
+
 function tintBackdrop(bg: BackdropSpec, tone: number): BackdropSpec {
   if (!tone || !bg.options) return { ...bg, options: { ...bg.options } };
   const options: NonNullable<BackdropSpec["options"]> = {};
   for (const [k, v] of Object.entries(bg.options)) {
-    options[k] = isHex(v) && k !== "light" ? shade(v, tone) : v;
+    // Wallpaper colours are left alone: uniqueness is handled in lib/domain/wallpapers.ts.
+    options[k] = isHex(v) && k !== "light" && !k.startsWith("wp") ? shade(v, tone) : v;
   }
   return { ...bg, options };
 }

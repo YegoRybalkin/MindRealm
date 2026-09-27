@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { getEnvironment } from "@/environments";
 import { createDemoWorld } from "@/lib/demo";
+import { migrateWorld } from "@/lib/domain/migrate";
 import { placeConcepts } from "@/lib/domain/placement";
 import { EMPTY_PROFILE, addTestRecord, recordActivity } from "@/lib/domain/profile";
 import * as W from "@/lib/domain/world";
@@ -50,6 +51,14 @@ export function MemoryStoreProvider({ children, repository }: { children: ReactN
     (async () => {
       try {
         let [ws, p] = await Promise.all([repo.listWorlds(), repo.loadProfile()]);
+        // Upgrade worlds saved by older versions (adds wallpapers & container contents).
+        ws = await Promise.all(
+          ws.map(async (w) => {
+            const m = migrateWorld(w);
+            if (m !== w) await repo.saveWorld(m);
+            return m;
+          }),
+        );
         if (!p.demoSeeded) {
           if (ws.length === 0) {
             const demo = createDemoWorld();

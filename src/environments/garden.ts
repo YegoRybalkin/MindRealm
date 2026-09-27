@@ -1,5 +1,5 @@
 import type { EnvironmentTemplate } from "./types";
-import { obj } from "./helpers";
+import { obj, wallpaper, wp } from "./helpers";
 
 export const garden: EnvironmentTemplate = {
   id: "garden",
@@ -9,12 +9,24 @@ export const garden: EnvironmentTemplate = {
   theme: { ambient: "#101712", glow: "#fff1b8", cardFrom: "#8fb07e", cardTo: "#2f4a2c" },
   startingSections: 3,
   variantPrefixes: ["Hidden", "Lower", "Walled", "Sunken", "Far"],
+  wallpaperPool: [
+    wallpaper("hedge", "#355e32", "#ffffff", "#ffffff"),
+    wallpaper("brick", "#9a4a3a", "#d9c8b4", "#4f7d45"),
+    wallpaper("maze", "#2f5230", "#ffffff", "#f2c6d6"),
+    wallpaper("picket", "#d9e6f0", "#b9c9d8", "#ffffff"),
+    wallpaper("lavender", "#4a7a45", "#ffffff", "#e6a8c8"),
+    wallpaper("balustrade", "#c9bfae", "#7a7262", "#f2d16b"),
+    wallpaper("trellis", "#355e32", "#6b4a2b", "#f2d16b"),
+    wallpaper("bamboo", "#6f8a3a", "#3f5a24", "#8a5f3c"),
+    wallpaper("stonewall", "#9a9488", "#857f72", "#3a6035"),
+    wallpaper("topiaryrow", "#44713c", "#ffffff", "#f2d16b"),
+  ],
   sections: [
     {
       id: "garden-entrance",
       name: "Entrance",
       blurb: "Iron gates open onto a gravel path.",
-      background: { kind: "garden", options: { time: "morning", path: "gravel" } },
+      background: { kind: "garden", options: { ...wp("stonewall", "#b8b0a0", "#a39a88", "#6a8a4a"), time: "morning", path: "gravel" } },
       objects: [
         obj("gate", "Iron Gate", "gate", 50, 70, 21),
         obj("lamppost", "Lamppost", "lamppost", 30, 80, 4.5),
@@ -28,7 +40,7 @@ export const garden: EnvironmentTemplate = {
       id: "garden-fountain",
       name: "Fountain Garden",
       blurb: "Water sings in the centre of the lawn.",
-      background: { kind: "garden", options: { time: "morning", path: "stone" } },
+      background: { kind: "garden", options: { ...wp("topiaryrow", "#3f6b3a", "#ffffff", "#e7a6b8"), time: "morning", path: "stone" } },
       objects: [
         obj("fountain", "Fountain", "fountain", 50, 82, 26),
         obj("bench", "Bench", "bench-garden", 84, 88, 15.5),
@@ -42,7 +54,7 @@ export const garden: EnvironmentTemplate = {
       id: "garden-rose",
       name: "Rose Garden",
       blurb: "Golden light through an arch of roses.",
-      background: { kind: "garden", options: { time: "golden", path: "stone" } },
+      background: { kind: "garden", options: { ...wp("trellis", "#3f6b3a", "#efe9dd", "#c43d4f"), time: "golden", path: "stone" } },
       objects: [
         obj("roses", "Rose Bush", "roses", 21, 81, 18),
         obj("arbor", "Rose Arbor", "arbor", 50, 74, 17),
@@ -56,7 +68,7 @@ export const garden: EnvironmentTemplate = {
       id: "garden-pond",
       name: "Pond",
       blurb: "A red bridge over still water.",
-      background: { kind: "garden", options: { time: "morning", path: "none", pond: true } },
+      background: { kind: "garden", options: { ...wp("bamboo", "#9aa55a", "#6a7a3a", "#5a3d28"), time: "morning", path: "none", pond: true } },
       objects: [
         obj("bridge", "Bridge", "bridge", 50, 77, 28.5),
         obj("lantern", "Stone Lantern", "stone-lantern", 15, 80, 6.5),
@@ -70,7 +82,7 @@ export const garden: EnvironmentTemplate = {
       id: "garden-statue",
       name: "Statue Garden",
       blurb: "Marble figures keep their silent watch.",
-      background: { kind: "garden", options: { time: "overcast", path: "stone" } },
+      background: { kind: "garden", options: { ...wp("balustrade", "#d9d2c4", "#8a8272", "#8fbf6a"), time: "overcast", path: "stone" } },
       objects: [
         obj("statue", "Statue", "statue", 50, 74, 8),
         obj("column", "Column", "column", 24, 74, 6.5),
@@ -84,13 +96,13 @@ export const garden: EnvironmentTemplate = {
       id: "garden-greenhouse",
       name: "Greenhouse",
       blurb: "Warm, humid and green under glass.",
-      background: { kind: "greenhouse", options: { time: "morning" } },
+      background: { kind: "greenhouse", options: { ...wp("lavender", "#4f7d45", "#ffffff", "#9b7fd0"), time: "morning" } },
       objects: [
         obj("orchid", "Orchid", "orchid", 30, 67.5, 5),
         obj("cactus", "Cactus", "cactus", 62, 67.5, 5),
         obj("basket", "Hanging Basket", "hanging-basket", 46, 36, 6.5),
         obj("can", "Watering Can", "watering-can", 72, 91, 8),
-        obj("tray", "Seedling Tray", "seed-tray", 45, 86, 13),
+        obj("tray", "Potting Tray", "seed-tray", 45, 86, 13, { interior: "garden-greenhouse-bench" }),
         obj("plant", "Palm", "plant", 15, 93, 10.5),
       ],
     },
@@ -98,7 +110,7 @@ export const garden: EnvironmentTemplate = {
       id: "garden-orchard",
       name: "Orchard",
       blurb: "Apple trees heavy with fruit.",
-      background: { kind: "garden", options: { time: "golden", path: "none", hedge: false } },
+      background: { kind: "garden", options: { ...wp("picket", "#f3efe6", "#d9d2c4", "#ffffff"), time: "golden", path: "none", hedge: false } },
       objects: [
         obj("tree", "Apple Tree", "tree-apple", 26, 74, 21),
         obj("ladder", "Orchard Ladder", "ladder", 38, 76, 5),
