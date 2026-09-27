@@ -1088,6 +1088,95 @@ const interiorHolo: BackdropRenderer = (u, o) => {
   );
 };
 
+/** Inside an oven: glowing element, two racks. */
+const interiorOven: BackdropRenderer = (u) => (
+  <g>
+    <rect width={SCENE_W} height={SCENE_H} fill="#16100c" />
+    <rect x="80" y="60" width={SCENE_W - 160} height={SCENE_H - 100} rx="30" fill="#2a1d16" />
+    <LightPool u={u} k="heat" cx={800} cy={860} rx={900} ry={420} color="#ff7a2a" opacity={0.55} />
+    <LightPool u={u} k="top" cx={800} cy={90} rx={700} ry={140} color="#ffb05a" opacity={0.35} />
+    <path d="M160 110H1440" stroke="#ff8a3a" strokeWidth={10} strokeLinecap="round" opacity={0.8} />
+    {[420, 780].map((y) => (
+      <g key={y}>
+        <rect x="120" y={y} width={SCENE_W - 240} height="10" rx="5" fill="#8e969f" />
+        {Array.from({ length: 24 }).map((_, i) => (
+          <rect key={i} x={140 + i * 55} y={y - 36} width="4" height="46" fill="#6f777f" />
+        ))}
+      </g>
+    ))}
+    <Vignette u={u} strength={0.6} />
+  </g>
+);
+
+/** A bank-vault interior with safe-deposit drawers and lit shelves. */
+const interiorSafe: BackdropRenderer = (u) => (
+  <g>
+    <rect width={SCENE_W} height={SCENE_H} fill="#3a3f46" />
+    <g>
+      {Array.from({ length: 16 }).map((_, c) =>
+        Array.from({ length: 2 }).map((_, r) => (
+          <g key={`${c}${r}`}>
+            <rect x={20 + c * 98} y={20 + r * 60} width="90" height="52" rx="4" fill="#8e969f" />
+            <rect x={55 + c * 98} y={40 + r * 60} width="20" height="10" rx="3" fill="#d6a84a" />
+          </g>
+        )),
+      )}
+    </g>
+    {[400, 700].map((y) => (
+      <g key={y}>
+        <rect x="0" y={y} width={SCENE_W} height="24" fill="#6f777f" />
+        <rect x="0" y={y} width={SCENE_W} height="5" fill="#b9c0c7" />
+        <rect x="0" y={y + 24} width={SCENE_W} height="60" fill="#000" opacity={0.25} />
+      </g>
+    ))}
+    <rect x="0" y="780" width={SCENE_W} height="120" fill="#2a2e34" />
+    <LightPool u={u} k="gold" cx={800} cy={500} rx={760} ry={380} color="#ffd98a" opacity={0.25} />
+    <Vignette u={u} strength={0.6} />
+  </g>
+);
+
+/** A hollow inside a tree trunk. */
+const interiorHollow: BackdropRenderer = (u) => (
+  <g>
+    <rect width={SCENE_W} height={SCENE_H} fill="#4a3322" />
+    <g stroke="#3a2618" strokeWidth={14} fill="none" opacity={0.7}>
+      {Array.from({ length: 14 }).map((_, i) => (
+        <path key={i} d={`M${i * 120} 0c${40 - (i % 3) * 30} 300 ${-30 + (i % 2) * 60} 600 ${10} 900`} />
+      ))}
+    </g>
+    <ellipse cx="800" cy="470" rx="700" ry="400" fill="#2a1a10" />
+    <ellipse cx="800" cy="500" rx="640" ry="340" fill="#6b4a2b" />
+    <path d="M160 640c200-60 1080-60 1280 0v200H160z" fill="#8a6a44" />
+    <g fill="#c9a86a" opacity={0.6}>
+      {Array.from({ length: 40 }).map((_, i) => (
+        <ellipse key={i} cx={220 + ((i * 97) % 1160)} cy={680 + ((i * 53) % 140)} rx="14" ry="4" transform={`rotate(${(i * 37) % 180} ${220 + ((i * 97) % 1160)} ${680 + ((i * 53) % 140)})`} />
+      ))}
+    </g>
+    <LightPool u={u} k="sun" cx={800} cy={120} rx={600} ry={260} color="#fff1c9" opacity={0.35} />
+    <Vignette u={u} strength={0.6} />
+  </g>
+);
+
+/** Inside a canvas mail sack. */
+const interiorBag: BackdropRenderer = (u, o) => {
+  const canvas = str(o, "canvas", "#b8a47a");
+  return (
+    <g>
+      <rect width={SCENE_W} height={SCENE_H} fill={shade(canvas, -0.55)} />
+      <path d="M40 60c200-60 1320-60 1520 0l-60 800c-300 60-1100 60-1400 0z" fill={canvas} />
+      <path d="M120 120c200-40 1160-40 1360 0l-50 700c-280 50-980 50-1260 0z" fill={shade(canvas, -0.15)} />
+      <g stroke={shade(canvas, -0.3)} strokeWidth={3} opacity={0.5}>
+        {Array.from({ length: 30 }).map((_, i) => (
+          <line key={i} x1={140 + i * 45} y1={130} x2={170 + i * 42} y2={820} />
+        ))}
+      </g>
+      <path d="M40 60c200-60 1320-60 1520 0" stroke={shade(canvas, -0.4)} strokeWidth={20} fill="none" strokeDasharray="30 18" />
+      <LightPool u={u} k="l" cx={800} cy={140} rx={800} ry={300} color="#fff6dc" opacity={0.3} />
+      <Vignette u={u} strength={0.55} />
+    </g>
+  );
+};
+
 /* ------------------------------------------------------------------ */
 
 export const BACKDROPS: Record<string, BackdropRenderer> = {
@@ -1109,6 +1198,10 @@ export const BACKDROPS: Record<string, BackdropRenderer> = {
   "interior-water": interiorWater,
   "interior-hive": interiorHive,
   "interior-holo": interiorHolo,
+  "interior-oven": interiorOven,
+  "interior-safe": interiorSafe,
+  "interior-hollow": interiorHollow,
+  "interior-bag": interiorBag,
 };
 
 export function renderBackdrop(spec: BackdropSpec, u: string): ReactNode {
